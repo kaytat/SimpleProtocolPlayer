@@ -19,3 +19,5 @@ Compile and run the server with the appropriate options.
 
 Test your latency:
 https://www.youtube.com/watch?v=KWh9YLtbbws
+
+The default buffer size is 50 ms.
