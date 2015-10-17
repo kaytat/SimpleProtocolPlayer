@@ -21,7 +21,7 @@ This project is based on an old version of this Android example: https://github.
 The following web page describes how to configure PulseAudio for use with this player.  http://kaytat.com/blog/?page_id=301
 
 #### Streaming from Windows
-You will have to compile the Windows server from source and run it locally.  The server has some options also to help tune the performance.
+Download the server from the github link above and run it locally.  The server has some options also to help tune the performance.
 
 #### Test your latency:
 https://www.youtube.com/watch?v=KWh9YLtbbws
