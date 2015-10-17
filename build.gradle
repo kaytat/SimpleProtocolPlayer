@@ -1,0 +1,35 @@
+apply plugin: 'com.android.application'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.1.0'
+    }
+}
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+apply plugin: 'com.android.application'
+android {
+    compileSdkVersion 17
+    buildToolsVersion "22.0.1"
+    defaultConfig {
+        applicationId "com.kaytat.simpleprotocolplayer"
+        minSdkVersion 14
+        targetSdkVersion 17
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+    productFlavors {
+    }
+}
+
+dependencies {
+}
