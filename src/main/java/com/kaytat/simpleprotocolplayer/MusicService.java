@@ -470,6 +470,8 @@ public class MusicService extends Service implements MusicFocusable {
         bufferToAudioTrackWorkerThread.start();
         networkReadWorkerThread.start();
 
+        mWifiLock.acquire();
+
         mState = State.Playing;
         configVolume();
 
