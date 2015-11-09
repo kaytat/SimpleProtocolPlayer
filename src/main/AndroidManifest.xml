@@ -18,8 +18,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kaytat.simpleprotocolplayer"
-    android:versionCode="8"
-    android:versionName="0.5.2.0">
+    android:versionCode="9"
+    android:versionName="0.5.3.0">
 
     <uses-sdk
         android:minSdkVersion="14"
