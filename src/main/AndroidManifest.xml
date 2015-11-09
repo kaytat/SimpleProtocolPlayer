@@ -51,7 +51,7 @@
 
         <service
             android:name="com.kaytat.simpleprotocolplayer.MusicService"
-            android:exported="false" >
+            android:exported="true" >
             <intent-filter>
                 <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
                 <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
