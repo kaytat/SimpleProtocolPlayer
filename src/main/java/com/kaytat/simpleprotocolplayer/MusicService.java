@@ -17,23 +17,17 @@
 
 package com.kaytat.simpleprotocolplayer;
 
+import java.util.ArrayList;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.io.DataInputStream;
-import java.net.Socket;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -66,10 +60,7 @@ public class MusicService extends Service implements MusicFocusable {
     // the volume instead of stopping playback.
     public static final float DUCK_VOLUME = 0.1f;
 
-    // Media track
-    private AudioTrack mTrack = null;
-    private ThreadStoppable bufferToAudioTrackWorkerThread = null;
-    private ThreadStoppable networkReadWorkerThread = null;
+    private ArrayList<WorkerThreadPair> workers = new ArrayList<WorkerThreadPair>();
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
@@ -162,22 +153,6 @@ public class MusicService extends Service implements MusicFocusable {
         }
     }
 
-    void stopAndInterrupt(ThreadStoppable t) {
-        if (t != null) {
-            try {
-                t.customStop();
-                t.interrupt();
-
-                // Do not join since this can take some time.  The
-                // workers should be able to shutdown independently.
-                // t.join();
-            }
-            catch (Exception e) {
-                Log.e(TAG, "join exception:" + e);
-            }
-        }
-    }
-
     /**
      * Releases resources used by the service for playback. This includes the "foreground service"
      * status and notification, the wake locks and the AudioTrack
@@ -190,13 +165,13 @@ public class MusicService extends Service implements MusicFocusable {
         if (mWifiLock.isHeld()) mWifiLock.release();
 
         // Wait for worker thread to stop if running
-        stopAndInterrupt(bufferToAudioTrackWorkerThread);
-        stopAndInterrupt(networkReadWorkerThread);
 
-        // Make sure to release any resources
-        if (mTrack != null) {
-            mTrack = null;
+        for (WorkerThreadPair worker : workers) {
+            worker.stopAndInterrupt();
         }
+
+        workers.clear();
+
     }
 
     void tryToGetAudioFocus() {
@@ -222,253 +197,32 @@ public class MusicService extends Service implements MusicFocusable {
             if (mState == State.Playing) {
                 processStopRequest();
             }
+
+            return;
         }
 
-        else if (mAudioFocus == AudioFocus.NoFocusCanDuck) {
-            mTrack.setStereoVolume(DUCK_VOLUME, DUCK_VOLUME);  // we'll be relatively quiet
-        }
-        else {
-            mTrack.setStereoVolume(1.0f, 1.0f); // we can be loud
-        }
-    }
-
-    static private final int NUM_PKTS = 3;
-
-    // The amount of data to read from the network before sending to AudioTrack
-    private int packet_size;
-    private final Object filledLock = new Object();
-    private int filled = 0;
-    private byte[][] byteArray = new byte[NUM_PKTS][];
-
-    void initNetworkData(
-            int sample_rate,
-            boolean stereo,
-            int minBuf,
-            int buffer_ms) {
-
-        // Assume 16 bits per sample
-        int bytesPerSecond = sample_rate * 2;
-        if (stereo) {
-            bytesPerSecond *= 2;
-        }
-
-        packet_size = (bytesPerSecond * buffer_ms) / 1000;
-        if ((packet_size & 1) != 0) {
-            packet_size++;
-        }
-
-        Log.d(TAG, "initNetworkData:bytes / second:" + (bytesPerSecond));
-        Log.d(TAG, "initNetworkData:minBuf:" + minBuf);
-        Log.d(TAG, "initNetworkData:packet_size:" + packet_size);
-
-        for (int i = 0; i < NUM_PKTS; i++) {
-            byteArray[i] = new byte[packet_size];
-        }
-    }
-
-    private class ThreadStoppable extends Thread {
-        boolean running = true;
-        public void customStop() {
-            running = false;
-        }
-    }
-
-    /**
-     * Worker thread that takes data from the buffer and sends it to audio track
-     */
-    private class BufferToAudioTrackThread extends ThreadStoppable {
-        static final String TAG = "BTATThread";
-
-        private AudioTrack mTrack;
-
-        public BufferToAudioTrackThread(AudioTrack track) {
-            mTrack = track;
-        }
-
-        @Override
-        public void run() {
-            Log.i(TAG, "start");
-
-            mTrack.play();
-
-            try {
-                int idx = 0;
-                while (running) {
-                    synchronized (filledLock) {
-                        while (filled == 0) {
-                            filledLock.wait();
-                            if (!running) {
-                                throw new Exception("Not running");
-                            }
-                        }
-                    }
-
-                    mTrack.write(byteArray[idx], 0, packet_size);
-                    idx++;
-                    if (idx == NUM_PKTS) {
-                        idx = 0;
-                    }
-                    synchronized (filledLock) {
-                        filled--;
-                        filledLock.notifyAll();
-                    }
-                }
+        for (WorkerThreadPair it : workers) {
+            if (mAudioFocus == AudioFocus.NoFocusCanDuck) {
+                it.mTrack.setStereoVolume(DUCK_VOLUME, DUCK_VOLUME); // we'll be
+                                                                     // relatively
+                                                                     // quiet
+            } else {
+                it.mTrack.setStereoVolume(1.0f, 1.0f); // we can be loud
             }
-            catch (Exception e) {
-                Log.e(TAG, "exception:" + e);
-            }
-
-            // Do some cleanup
-            mTrack.stop();
-            mTrack.release();
-            mTrack = null;
-            Log.i(TAG, "done");
-        }
-    }
-
-    /**
-     * Worker thread reads data from the network
-     */
-    private class NetworkReadThread extends ThreadStoppable {
-        static final String TAG = "NRThread";
-
-        Context context;
-        String ipAddr;
-        int port;
-        Socket socket;
-
-        // socket timeout at 5 seconds
-        static final int SOCKET_TIMEOUT = 5 * 1000;
-
-        public NetworkReadThread(Context context, String ipAddr, int port) {
-            this.context = context;
-            this.ipAddr = ipAddr;
-            this.port = port;
-        }
-
-        @Override
-        public void run() {
-            Log.i(TAG, "start");
-
-            byte[] tmpBuf = new byte[packet_size];
-            try {
-                // Create the TCP socket and setup some parameters
-                socket = new Socket(ipAddr, port);
-                DataInputStream is = new DataInputStream(
-                        socket.getInputStream());
-                try {
-                    socket.setSoTimeout(SOCKET_TIMEOUT);
-                    socket.setTcpNoDelay(true);
-                } catch (Exception e) {
-                    Log.i(TAG, "exception:" + e);
-                    return;
-                }
-
-                Log.i(TAG, "running");
-                int idx = 0;
-
-                while (running) {
-                    synchronized (filledLock) {
-                        while (filled == NUM_PKTS) {
-                            filledLock.wait();
-                            if (!running) {
-                                throw new Exception("Not running");
-                            }
-                        }
-                    }
-
-                    // Get a packet
-                    is.readFully(byteArray[idx]);
-                    idx++;
-                    if (idx == NUM_PKTS) {
-                        idx = 0;
-                    }
-                    synchronized (filledLock) {
-                        filled++;
-                        if (filled == NUM_PKTS) {
-                            Log.i(TAG, "flushing");
-                            // Filled up.  Throw away everything that's in the network queue.
-                            int rd;
-                            do {
-                                rd = is.read(tmpBuf);
-                            } while (rd == packet_size && running);
-                        }
-                        filledLock.notifyAll();
-                    }
-                }
-            }
-            catch (Exception e) {
-                Log.i(TAG, "exception:" + e);
-            }
-
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-                if (running) {
-                    // Broke out of loop unexpectedly.  Shutdown.
-                    Handler h = new Handler(context.getMainLooper());
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Unable to stream", Toast.LENGTH_SHORT).show();
-                            processStopRequest();
-                        }
-                    };
-                    h.post(r);
-                }
-            }
-            catch (Exception e) {
-                Log.i(TAG, "exception while closing:" + e);
-            }
-
-            Log.i(TAG, "done");
         }
     }
 
     /**
      * Play the stream using the given IP address and port
      */
-    void playStream(String serverAddr,
-                    int serverPort,
-                    int sample_rate,
-                    boolean stereo,
-                    int buffer_ms) {
-        int format = stereo ?
-                AudioFormat.CHANNEL_OUT_STEREO :
-                AudioFormat.CHANNEL_OUT_MONO;
-
-        // Sanitize input, just in case
-        if (sample_rate <= 0) {
-            sample_rate = DEFAULT_SAMPLE_RATE;
-        }
-
-        if (buffer_ms <= 5) {
-            buffer_ms = DEFAULT_BUFFER_MS;
-        }
-
-        int minBuf = AudioTrack.getMinBufferSize(
-                sample_rate,
-                format,
-                AudioFormat.ENCODING_PCM_16BIT);
-
-        initNetworkData(sample_rate, stereo, minBuf, buffer_ms);
+    void playStream(String serverAddr, int serverPort, int sample_rate,
+            boolean stereo, int buffer_ms) {
 
         mState = State.Stopped;
         relaxResources();
-        filled = 0;
 
-        // The agreement here is that mTrack will be shutdown by the helper
-        mTrack = new AudioTrack(AudioManager.STREAM_MUSIC,
-                sample_rate, format,
-                AudioFormat.ENCODING_PCM_16BIT, minBuf,
-                AudioTrack.MODE_STREAM);
-
-        bufferToAudioTrackWorkerThread = new BufferToAudioTrackThread(mTrack);
-        networkReadWorkerThread = new NetworkReadThread(this, serverAddr, serverPort);
-
-        bufferToAudioTrackWorkerThread.start();
-        networkReadWorkerThread.start();
+        workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
+                sample_rate, stereo, buffer_ms));
 
         mWifiLock.acquire();
 
