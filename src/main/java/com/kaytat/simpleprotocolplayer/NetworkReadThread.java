@@ -49,7 +49,6 @@ class NetworkReadThread extends ThreadStoppable {
     public void run() {
         Log.i(TAG, "start");
 
-        byte[] tmpBuf = new byte[syncObject.packet_size];
         try {
             // Create the TCP socket and setup some parameters
             socket = new Socket(ipAddr, port);
@@ -63,37 +62,38 @@ class NetworkReadThread extends ThreadStoppable {
             }
 
             Log.i(TAG, "running");
-            int idx = 0;
+
+            // use static buffer to avoid GC
+            // since we use BlockingQueue to pass data
+            // so at most we will use NUM_PKTS (in queue) + 1 (taken by
+            // audioThread) +1 (read socket)
+            // buffers .
+            int tempSize = WorkerThreadPair.NUM_PKTS + 2;
+            byte[][] staticBuffer = new byte[tempSize][];
+
+            for (int i = 0; i < tempSize; i++) {
+                staticBuffer[i] = new byte[syncObject.packet_size];
+            }
+
+            int unusedIndex = 0;
 
             while (running) {
-                synchronized (syncObject.filledLock) {
-                    while (syncObject.filled == WorkerThreadPair.NUM_PKTS) {
-                        syncObject.filledLock.wait();
-                        if (!running) {
-                            throw new Exception("Not running");
-                        }
-                    }
-                }
 
                 // Get a packet
-                is.readFully(syncObject.byteArray[idx]);
-                idx++;
-                if (idx == WorkerThreadPair.NUM_PKTS) {
-                    idx = 0;
+                is.readFully(staticBuffer[unusedIndex]);
+
+                boolean dataPassed = syncObject.dataQueue
+                        .offer(staticBuffer[unusedIndex]);
+
+                if (!dataPassed) {
+                    // if current buffer not used to queue,
+                    // will be used as next read buffer, should not update
+                    // Filled up. Throw away everything that's in the network
+                    // queue.
+                    Log.w(TAG, "drop " + syncObject.packet_size + " bytes");
+                    continue;
                 }
-                synchronized (syncObject.filledLock) {
-                    syncObject.filled++;
-                    if (syncObject.filled == WorkerThreadPair.NUM_PKTS) {
-                        Log.i(TAG, "flushing");
-                        // Filled up. Throw away everything that's in the
-                        // network queue.
-                        int rd;
-                        do {
-                            rd = is.read(tmpBuf);
-                        } while (rd == syncObject.packet_size && running);
-                    }
-                    syncObject.filledLock.notifyAll();
-                }
+                unusedIndex = (unusedIndex + 1) % tempSize;
             }
         } catch (Exception e) {
             Log.i(TAG, "exception:" + e);
