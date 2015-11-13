@@ -39,7 +39,7 @@ public class WorkerThreadPair {
 
     public WorkerThreadPair(MusicService musicService, String serverAddr,
             int serverPort, int sample_rate, boolean stereo, int buffer_ms) {
-        this.musicService=musicService;
+        this.musicService = musicService;
         int format = stereo ? AudioFormat.CHANNEL_OUT_STEREO
                 : AudioFormat.CHANNEL_OUT_MONO;
 
