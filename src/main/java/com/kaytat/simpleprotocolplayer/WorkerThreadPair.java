@@ -17,6 +17,8 @@
 
 package com.kaytat.simpleprotocolplayer;
 
+import java.util.concurrent.ArrayBlockingQueue;
+
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -56,10 +58,6 @@ public class WorkerThreadPair {
                 AudioFormat.ENCODING_PCM_16BIT);
 
         packet_size = calcPacketSize(sample_rate, stereo, minBuf, buffer_ms);
-
-        for (int i = 0; i < NUM_PKTS; i++) {
-            byteArray[i] = new byte[packet_size];
-        }
 
         // The agreement here is that mTrack will be shutdown by the helper
         mTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, format,
@@ -101,9 +99,8 @@ public class WorkerThreadPair {
     // The amount of data to read from the network before sending to AudioTrack
     int packet_size;
 
-    final Object filledLock = new Object();
-    int filled = 0;
-    byte[][] byteArray = new byte[NUM_PKTS][];
+    final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<byte[]>(
+            NUM_PKTS);
 
     public void stopAndInterrupt() {
         for (ThreadStoppable it : new ThreadStoppable[] { audioThread,

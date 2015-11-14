@@ -45,26 +45,9 @@ class BufferToAudioTrackThread extends ThreadStoppable {
         mTrack.play();
 
         try {
-            int idx = 0;
             while (running) {
-                synchronized (syncObject.filledLock) {
-                    while (syncObject.filled == 0) {
-                        syncObject.filledLock.wait();
-                        if (!running) {
-                            throw new Exception("Not running");
-                        }
-                    }
-                }
-
-                mTrack.write(syncObject.byteArray[idx], 0,
+                mTrack.write(syncObject.dataQueue.take(), 0,
                         syncObject.packet_size);
-
-                idx = (++idx) % WorkerThreadPair.NUM_PKTS;
-
-                synchronized (syncObject.filledLock) {
-                    syncObject.filled--;
-                    syncObject.filledLock.notifyAll();
-                }
             }
         } catch (Exception e) {
             Log.e(TAG, "exception:" + e);
