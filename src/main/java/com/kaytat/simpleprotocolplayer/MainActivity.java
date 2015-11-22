@@ -37,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Spinner;
@@ -69,6 +70,7 @@ public class MainActivity extends Activity implements OnClickListener {
     int mSampleRate;
     boolean mStereo;
     int mBufferMs;
+    boolean mRetry;
 
     Button mPlayButton;
     Button mStopButton;
@@ -139,6 +141,7 @@ public class MainActivity extends Activity implements OnClickListener {
     static final String RATE_PREF = "RATE";
     static final String STEREO_PREF = "STEREO";
     static final String BUFFER_MS_PREF = "BUFFER_MS";
+    static final String RETRY_PREF = "RETRY";
 
     ArrayList<String> getListFromPrefs(
             SharedPreferences prefs,
@@ -241,6 +244,7 @@ public class MainActivity extends Activity implements OnClickListener {
         prefsEditor.putBoolean(STEREO_PREF, mStereo);
         prefsEditor.putInt(RATE_PREF, mSampleRate);
         prefsEditor.putInt(BUFFER_MS_PREF, mBufferMs);
+        prefsEditor.putBoolean(RETRY_PREF, mRetry);
         prefsEditor.apply();
 
         // Update adapters
@@ -341,10 +345,13 @@ public class MainActivity extends Activity implements OnClickListener {
             stereoSpinner.setSelection(1);
         }
 
-        mBufferMs = myPrefs.getInt(BUFFER_MS_PREF, 50);
+        mBufferMs = myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
         Log.d(TAG, "mBufferMs:" + mBufferMs);
         EditText e = (EditText)findViewById(R.id.editTextBufferSize);
         e.setText(Integer.toString(mBufferMs));
+
+        mRetry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
+        Log.d(TAG, "mRetry:" + mRetry);
     }
 
     @Override
@@ -370,18 +377,21 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onClick(View target) {
         // Send the correct intent to the MusicService, according to the button that was clicked
         if (target == mPlayButton) {
+            hideKb();
+
             // Get the IP address and port and put it in the intent
             Intent i = new Intent(MusicService.ACTION_PLAY);
             String ipAddr = mIPAddrText.getText().toString();
             String portStr = mAudioPortText.getText().toString();
-            if (ipAddr == null || ipAddr.equals("")) {
+            if (ipAddr.equals("")) {
                 Toast.makeText(getApplicationContext(), "Invalid address", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if (portStr == null || portStr.equals("")) {
+            if (portStr.equals("")) {
                 Toast.makeText(getApplicationContext(), "Invalid port", Toast.LENGTH_SHORT).show();
                 return;
             }
+            Log.d(TAG, "ip:" + ipAddr);
             i.putExtra(MusicService.DATA_IP_ADDRESS, ipAddr);
 
             int audioPort;
@@ -392,50 +402,52 @@ public class MainActivity extends Activity implements OnClickListener {
                 Toast.makeText(getApplicationContext(), "Invalid port", Toast.LENGTH_SHORT).show();
                 return;
             }
-            hideKb();
+            Log.d(TAG, "port:" + audioPort);
             i.putExtra(MusicService.DATA_AUDIO_PORT, audioPort);
 
             // Extract sample rate
-            Spinner sampleRateSpinner = (Spinner) findViewById(R.id.spinnerSampleRate);
-            try {
-                String rateStr = String.valueOf(sampleRateSpinner.getSelectedItem());
-                String[] rateSplit = rateStr.split(" ");
-                if (rateSplit.length != 0) {
+            Spinner sampleRateSpinner = (Spinner)findViewById(R.id.spinnerSampleRate);
+            String rateStr = String.valueOf(sampleRateSpinner.getSelectedItem());
+            String[] rateSplit = rateStr.split(" ");
+            if (rateSplit.length != 0) {
+                try {
                     mSampleRate = Integer.parseInt(rateSplit[0]);
                     Log.i(TAG, "rate:" + mSampleRate);
                     i.putExtra(MusicService.DATA_SAMPLE_RATE, mSampleRate);
+                } catch (NumberFormatException nfe) {
+                    // Ignore the error
+                    Log.i(TAG, "invalid sample rate:" + nfe);
                 }
-            }
-            catch (Exception e) {
-                // Ignore parsing errors.  The intent will have a default
             }
 
             // Extract stereo/mono setting
             Spinner stereoSpinner = (Spinner) findViewById(R.id.stereo);
-            try {
-                String stereoSettingString = String.valueOf(stereoSpinner.getSelectedItem());
-                String[] stereoSplit = stereoSettingString.split(" ");
-                String stereoKey = getResources().getString(R.string.stereoKey);
-                if (stereoSplit.length != 0) {
-                    mStereo = stereoSplit[0].contains(stereoKey);
-                    Log.i(TAG, "stereo:" + mStereo);
-                    i.putExtra(MusicService.DATA_STEREO, mStereo);
-                }
-            }
-            catch (Exception e) {
-                // Ignore parsing errors.  The intent will have a default
-            }
+            String stereoSettingString = String.valueOf(stereoSpinner.getSelectedItem());
+            String stereoKey = getResources().getString(R.string.stereoKey);
+            mStereo = stereoSettingString.contains(stereoKey);
+            i.putExtra(MusicService.DATA_STEREO, mStereo);
+            Log.i(TAG, "stereo:" + mStereo);
 
             // Get the latest buffer entry
             EditText e = (EditText)findViewById(R.id.editTextBufferSize);
             String bufferMsString = e.getText().toString();
-            if (bufferMsString == null || bufferMsString.isEmpty()) {
-                mBufferMs = 0;
-            } else {
-                mBufferMs = Integer.parseInt(bufferMsString);
+            if (!bufferMsString.isEmpty()) {
+                try {
+                    mBufferMs = Integer.parseInt(bufferMsString);
+                    Log.d(TAG, "buffer ms:" + mBufferMs);
+                    i.putExtra(MusicService.DATA_BUFFER_MS, mBufferMs);
+                } catch (NumberFormatException nfe) {
+                    // Ignore the error
+                    Log.i(TAG, "invalid buffer size:" + nfe);
+                }
             }
-            i.putExtra(MusicService.DATA_BUFFER_MS, mBufferMs);
 
+            // Get the retry checkbox
+            mRetry = ((CheckBox)findViewById(R.id.checkBoxRetry)).isChecked();
+            Log.d(TAG, "retry:" + mRetry);
+            i.putExtra(MusicService.DATA_RETRY, mRetry);
+
+            // Extract the retry state
             // Save current settings
             savePrefs();
             startService(i);

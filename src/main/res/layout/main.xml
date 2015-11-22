@@ -169,6 +169,34 @@
                 android:layout_gravity="center_horizontal" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_margin="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/center6"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerHorizontal="true"
+                android:visibility="invisible"/>
+
+            <TextView
+                android:id="@+id/labelRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/center6"
+                android:layout_centerVertical="true"
+                android:text="@string/retry" />
+
+            <CheckBox
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/checkBoxRetry"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/center6" />
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_margin="8dp"
             android:layout_width="match_parent"
