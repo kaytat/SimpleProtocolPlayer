@@ -39,8 +39,14 @@ public class WorkerThreadPair {
     private NetworkReadThread networkThread;
     AudioTrack mTrack;
 
-    public WorkerThreadPair(MusicService musicService, String serverAddr,
-            int serverPort, int sample_rate, boolean stereo, int buffer_ms) {
+    public WorkerThreadPair(
+            MusicService musicService,
+            String serverAddr,
+            int serverPort,
+            int sample_rate,
+            boolean stereo,
+            int buffer_ms,
+            boolean retry) {
         this.musicService = musicService;
         int format = stereo ? AudioFormat.CHANNEL_OUT_STEREO
                 : AudioFormat.CHANNEL_OUT_MONO;
@@ -65,7 +71,7 @@ public class WorkerThreadPair {
 
         audioThread = new BufferToAudioTrackThread(this, "audio:"
                 + serverAddr + ":" + serverPort);
-        networkThread = new NetworkReadThread(this, serverAddr, serverPort,
+        networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
                 "net:" + serverAddr + ":" + serverPort);
 
         audioThread.start();

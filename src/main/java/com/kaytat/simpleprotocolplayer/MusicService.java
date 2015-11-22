@@ -42,6 +42,7 @@ public class MusicService extends Service implements MusicFocusable {
     static final int DEFAULT_SAMPLE_RATE = 44100;
     static final boolean DEFAULT_STEREO = true;
     static final int DEFAULT_BUFFER_MS = 50;
+    static final boolean DEFAULT_RETRY = false;
 
     // These are the Intent actions that we are prepared to handle. Notice that the fact these
     // constants exist in our class is a mere convenience: what really defines the actions our
@@ -55,6 +56,7 @@ public class MusicService extends Service implements MusicFocusable {
     public static final String DATA_SAMPLE_RATE = "sample_rate";
     public static final String DATA_STEREO = "stereo";
     public static final String DATA_BUFFER_MS = "buffer_ms";
+    public static final String DATA_RETRY = "retry";
 
     // The volume we set the media player to when we lose audio focus, but are allowed to reduce
     // the volume instead of stopping playback.
@@ -136,7 +138,8 @@ public class MusicService extends Service implements MusicFocusable {
                     i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
                     i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
                     i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
-                    i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS));
+                    i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
+                    i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY));
         }
     }
 
@@ -215,14 +218,19 @@ public class MusicService extends Service implements MusicFocusable {
     /**
      * Play the stream using the given IP address and port
      */
-    void playStream(String serverAddr, int serverPort, int sample_rate,
-            boolean stereo, int buffer_ms) {
+    void playStream(
+            String serverAddr,
+            int serverPort,
+            int sample_rate,
+            boolean stereo,
+            int buffer_ms,
+            boolean retry) {
 
         mState = State.Stopped;
         relaxResources();
 
         workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
-                sample_rate, stereo, buffer_ms));
+                sample_rate, stereo, buffer_ms, retry));
 
         mWifiLock.acquire();
 
