@@ -1,4 +1,4 @@
-# SimpleProtocolPlayer
+# Simple Protocol Player
 
 ## Links:
 #### Play store
