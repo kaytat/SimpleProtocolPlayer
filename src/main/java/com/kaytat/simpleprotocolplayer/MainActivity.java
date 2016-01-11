@@ -152,11 +152,11 @@ public class MainActivity extends Activity implements OnClickListener {
         String jsonString = prefs.getString(keyJson, null);
         ArrayList<String> arrayList = new ArrayList<String>();
 
-        if (jsonString == null || jsonString.isEmpty())
+        if (jsonString == null || jsonString.length()==0)
         {
             // Try to fill with the original key used
             String single = prefs.getString(keySingle, null);
-            if (single != null && !single.isEmpty())
+            if (single != null && single.length()!=0)
             {
                 arrayList.add(single);
             }
@@ -174,7 +174,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     for (int i = 0; i < jsonArray.length(); i++)
                     {
                         String s = (String)jsonArray.get(i);
-                        if (s != null && !s.isEmpty())
+                        if (s != null && s.length()!=0)
                         {
                             arrayList.add((String)s);
                         }
@@ -245,14 +245,30 @@ public class MainActivity extends Activity implements OnClickListener {
         prefsEditor.putInt(RATE_PREF, mSampleRate);
         prefsEditor.putInt(BUFFER_MS_PREF, mBufferMs);
         prefsEditor.putBoolean(RETRY_PREF, mRetry);
-        prefsEditor.apply();
+        if (android.os.Build.VERSION.SDK_INT >= 9) {
+            prefsEditor.apply();
+        } else {
+            prefsEditor.commit();
+        }
 
         // Update adapters
         mIPAddrAdapter.clear();
-        mIPAddrAdapter.addAll(mIPAddrList);
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            mIPAddrAdapter.addAll(mIPAddrList);
+        } else {
+            for(String ip:mIPAddrList) {
+                mIPAddrAdapter.add(ip);
+            }
+        }
         mIPAddrAdapter.notifyDataSetChanged();
         mAudioPortAdapter.clear();
-        mAudioPortAdapter.addAll(mAudioPortList);
+        if (android.os.Build.VERSION.SDK_INT >= 11) {
+            mAudioPortAdapter.addAll(mAudioPortList);
+        } else {
+            for(String port:mAudioPortList) {
+                mAudioPortAdapter.add(port);
+            }
+        }
         mAudioPortAdapter.notifyDataSetChanged();
     }
 
@@ -431,7 +447,7 @@ public class MainActivity extends Activity implements OnClickListener {
             // Get the latest buffer entry
             EditText e = (EditText)findViewById(R.id.editTextBufferSize);
             String bufferMsString = e.getText().toString();
-            if (!bufferMsString.isEmpty()) {
+            if (bufferMsString.length()!=0) {
                 try {
                     mBufferMs = Integer.parseInt(bufferMsString);
                     Log.d(TAG, "buffer ms:" + mBufferMs);

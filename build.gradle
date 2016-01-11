@@ -15,10 +15,10 @@ allprojects {
 apply plugin: 'com.android.application'
 android {
     compileSdkVersion 17
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '23.0.2'
     defaultConfig {
         applicationId "com.kaytat.simpleprotocolplayer"
-        minSdkVersion 14
+        minSdkVersion 8
         targetSdkVersion 17
     }
     buildTypes {
