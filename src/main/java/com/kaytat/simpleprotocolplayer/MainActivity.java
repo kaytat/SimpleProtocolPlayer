@@ -152,11 +152,11 @@ public class MainActivity extends Activity implements OnClickListener {
         String jsonString = prefs.getString(keyJson, null);
         ArrayList<String> arrayList = new ArrayList<String>();
 
-        if (jsonString == null || jsonString.length()==0)
+        if (jsonString == null || jsonString.length() == 0)
         {
             // Try to fill with the original key used
             String single = prefs.getString(keySingle, null);
-            if (single != null && single.length()!=0)
+            if (single != null && single.length() != 0)
             {
                 arrayList.add(single);
             }
@@ -174,7 +174,7 @@ public class MainActivity extends Activity implements OnClickListener {
                     for (int i = 0; i < jsonArray.length(); i++)
                     {
                         String s = (String)jsonArray.get(i);
-                        if (s != null && s.length()!=0)
+                        if (s != null && s.length() != 0)
                         {
                             arrayList.add((String)s);
                         }
@@ -447,7 +447,7 @@ public class MainActivity extends Activity implements OnClickListener {
             // Get the latest buffer entry
             EditText e = (EditText)findViewById(R.id.editTextBufferSize);
             String bufferMsString = e.getText().toString();
-            if (bufferMsString.length()!=0) {
+            if (bufferMsString.length() != 0) {
                 try {
                     mBufferMs = Integer.parseInt(bufferMsString);
                     Log.d(TAG, "buffer ms:" + mBufferMs);
