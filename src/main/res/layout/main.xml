@@ -46,6 +46,7 @@
 
             <AutoCompleteTextView
                 android:id="@+id/editTextIpAddr"
+                android:textColor="#000000"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/center"
@@ -75,6 +76,7 @@
 
             <AutoCompleteTextView
                 android:id="@+id/editTextAudioPort"
+                android:textColor="#000000"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/center2"
@@ -206,7 +208,6 @@
 
             <Button
                 android:id="@+id/playbutton"
-                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_margin="5dp"
@@ -214,7 +215,6 @@
 
             <Button
                 android:id="@+id/stopbutton"
-                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_margin="5dp"

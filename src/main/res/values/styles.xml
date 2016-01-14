@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="theme_light" parent="android:Theme.Light"/>
+    <style name="theme_light_nobar" parent="android:Theme.Light"/>
+</resources>
