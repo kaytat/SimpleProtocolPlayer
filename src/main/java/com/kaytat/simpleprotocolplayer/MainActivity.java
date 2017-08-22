@@ -41,7 +41,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -94,20 +93,26 @@ public class MainActivity extends Activity implements OnClickListener {
         mPlayButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
 
+        //disable focus onCreate
+        mIPAddrText.setFocusableInTouchMode(false);
+        mAudioPortText.setFocusableInTouchMode(false);
+
+
+
         // Allow full list to be shown on first focus
         mIPAddrText.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                mIPAddrText.showDropDown();
-                return false;
+                    mIPAddrText.showDropDown();
+               return false;
             }
         });
+
         mIPAddrText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus && mIPAddrText.getAdapter() != null)
                     mIPAddrText.showDropDown();
-
             }
         });
         mAudioPortText.setOnTouchListener(new View.OnTouchListener() {

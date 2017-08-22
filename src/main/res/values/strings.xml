@@ -38,7 +38,7 @@
         <item>Stereo (Default)</item>
     </string-array>
     <!-- used for searching stereo spinner -->
-    <string name="stereoKey">tereo</string>
+    <string name="stereoKey">Stereo</string>
     <string name="bufferSize">Buffer size (in ms)</string>
     <string name="retry">Enable network retries</string>
 </resources>
