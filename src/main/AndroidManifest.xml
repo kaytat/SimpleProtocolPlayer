@@ -36,7 +36,8 @@
         <activity
             android:name="com.kaytat.simpleprotocolplayer.MainActivity"
             android:label="@string/app_title"
-            android:theme="@style/theme_light" >
+            android:theme="@style/theme_light"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
