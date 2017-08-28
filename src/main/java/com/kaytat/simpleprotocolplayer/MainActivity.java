@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -143,7 +144,6 @@ public class MainActivity extends Activity implements OnClickListener {
 
             }
         });
-
     }
 
     @Override
@@ -332,7 +332,7 @@ public class MainActivity extends Activity implements OnClickListener {
         }
 
         public NoFilterArrayAdapter(Context context, int textViewResourceId,
-                                    List<T> objects) {
+                             List<T> objects) {
             super(context, textViewResourceId, objects);
             Log.v(TAG, "Adapter created " + filter);
             items = objects;
@@ -368,6 +368,10 @@ public class MainActivity extends Activity implements OnClickListener {
         if (mIPAddrList.size() != 0)
         {
             mIPAddrText.setText((String)mIPAddrList.get(0));
+        }
+
+        if (!isEmpty(mIPAddrText)) {
+            this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         }
 
         mAudioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
@@ -422,13 +426,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.notice_item:
-                Intent intent = new Intent(this, NoticeActivity.class);
-                startActivity(intent);
-                return true;
+        case R.id.notice_item:
+            Intent intent = new Intent(this, NoticeActivity.class);
+            startActivity(intent);
+            return true;
 
-            default:
-                return super.onOptionsItemSelected(item);
+        default:
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -525,5 +529,8 @@ public class MainActivity extends Activity implements OnClickListener {
             inputManager.hideSoftInputFromWindow(v.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
     }
 }
