@@ -21,11 +21,14 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -74,6 +77,8 @@ public class MainActivity extends Activity implements OnClickListener {
     Button mPlayButton;
     Button mStopButton;
 
+    NsdHelper mNsdHelper;
+
     /**
      * Called when the activity is first created. Here, we simply set the event listeners and
      * start the background service ({@link MusicService}) that will handle the actual media
@@ -83,6 +88,20 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        Log.d(TAG, "Starting.");
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeNsd();
+
+        mNsdHelper.discoverServices();
+
+        // Register to receive messages.
+        // We are registering an observer (mMessageReceiver) to receive Intents
+        // with actions named "custom-event-name".
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver,
+                new IntentFilter("custom-event-name"));
+
+
 
         mIPAddrText = (AutoCompleteTextView) findViewById(R.id.editTextIpAddr);
         mAudioPortText = (AutoCompleteTextView) findViewById(R.id.editTextAudioPort);
@@ -124,7 +143,31 @@ public class MainActivity extends Activity implements OnClickListener {
 
             }
         });
+
     }
+
+    @Override
+    protected void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
+    }
+
+    // Our handler for received Intents. This will be called whenever an Intent
+// with an action named "custom-event-name" is broadcasted.
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Get extra data included in the Intent
+            String message = intent.getStringExtra("message");
+
+            String Server = intent.getStringExtra("Server");
+            String Port =intent.getStringExtra("Port");
+            mIPAddrText.setText(Server);
+            mAudioPortText.setText(Port);
+            Log.d("receiver", "Got message: " + Server+" "+Port);
+        }
+    };
 
     /*
         The two different approaches here is an attempt to support both an old preferences
@@ -289,7 +332,7 @@ public class MainActivity extends Activity implements OnClickListener {
         }
 
         public NoFilterArrayAdapter(Context context, int textViewResourceId,
-                             List<T> objects) {
+                                    List<T> objects) {
             super(context, textViewResourceId, objects);
             Log.v(TAG, "Adapter created " + filter);
             items = objects;
@@ -379,13 +422,13 @@ public class MainActivity extends Activity implements OnClickListener {
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.notice_item:
-            Intent intent = new Intent(this, NoticeActivity.class);
-            startActivity(intent);
-            return true;
+            case R.id.notice_item:
+                Intent intent = new Intent(this, NoticeActivity.class);
+                startActivity(intent);
+                return true;
 
-        default:
-            return super.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
