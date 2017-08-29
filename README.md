@@ -20,6 +20,16 @@ This project is based on an old version of this Android example: https://github.
 #### Streaming from Ubuntu (or anything running PulseAudio)
 The following web page describes how to configure PulseAudio for use with this player.  http://kaytat.com/blog/?page_id=301
 
+in /etc/pulse/default.pa:
+```
+load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.2.0/24;192.168.11.0/24 auth-anonymous=1
+load-module module-simple-protocol-tcp source=1 record=true port=12345 rate=48000 channels=2
+load-module module-cli exit_on_eof=0
+
+load-module module-cli-protocol-tcp
+load-module module-zeroconf-publish
+```
+
 #### Streaming from Windows
 Download the server from the github link above and run it locally.  The server has some options also to help tune the performance.
 
