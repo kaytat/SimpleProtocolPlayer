@@ -20,12 +20,13 @@ This project is based on an old version of this Android example: https://github.
 #### Streaming from Ubuntu (or anything running PulseAudio)
 The following web page describes how to configure PulseAudio for use with this player.  http://kaytat.com/blog/?page_id=301
 
-in /etc/pulse/default.pa:
+If you want to use Simple Protocol Player with PulseAudio, you have to edit /etc/pulse/default.pa and add or update the following lines:
 ```
 load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1;192.168.2.0/24;192.168.11.0/24 auth-anonymous=1
 load-module module-simple-protocol-tcp source=1 record=true port=12345 rate=48000 channels=2
-load-module module-cli exit_on_eof=0
 
+# Only needed if you want auto discovery.
+load-module module-cli exit_on_eof=0
 load-module module-cli-protocol-tcp
 load-module module-zeroconf-publish
 ```
