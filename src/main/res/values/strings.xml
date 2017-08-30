@@ -41,4 +41,5 @@
     <string name="stereoKey">Stereo</string>
     <string name="bufferSize">Buffer size (in ms)</string>
     <string name="retry">Enable network retries</string>
+    <string name="discovery">Enable network Discovery</string>
 </resources>

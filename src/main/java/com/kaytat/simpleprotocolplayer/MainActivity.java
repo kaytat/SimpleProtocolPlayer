@@ -21,11 +21,14 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,6 +36,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -70,9 +74,18 @@ public class MainActivity extends Activity implements OnClickListener {
     boolean mStereo;
     int mBufferMs;
     boolean mRetry;
+    boolean mDiscovery;
+
+    String tcpRate, tcpServer, tcpPort = null;
+    Integer tcpChannels;
+    static final boolean DEFAULT_DISCOVERY = false;
+
 
     Button mPlayButton;
     Button mStopButton;
+    CheckBox cDiscovery, cRetry;
+
+    NsdHelper mNsdHelper;
 
     /**
      * Called when the activity is first created. Here, we simply set the event listeners and
@@ -89,6 +102,8 @@ public class MainActivity extends Activity implements OnClickListener {
         mStopButton = (Button) findViewById(R.id.stopbutton);
         mPlayButton = (Button) findViewById(R.id.playbutton);
         mStopButton = (Button) findViewById(R.id.stopbutton);
+        cDiscovery = (CheckBox) findViewById(R.id.checkBoxDiscovery);
+        cRetry = (CheckBox) findViewById(R.id.checkBoxRetry);
 
         mPlayButton.setOnClickListener(this);
         mStopButton.setOnClickListener(this);
@@ -124,7 +139,85 @@ public class MainActivity extends Activity implements OnClickListener {
 
             }
         });
+        cDiscovery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDiscovery = cDiscovery.isChecked();
+                if (((CheckBox) v).isChecked()) {
+                    savePrefs();
+                    mNsdHelper = new NsdHelper(getApplicationContext());
+                    mNsdHelper.initializeNsd();
+
+                    mNsdHelper.discoverServices();
+                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mMessageReceiver,
+                            new IntentFilter("nsdDetect"));
+                } else {
+                    savePrefs();
+                    if (mNsdHelper != null)
+                        mNsdHelper.stopDiscovery();
+                }
+            }
+        });
+        cRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mRetry = cRetry.isChecked();
+                savePrefs();
+            }
+        });
     }
+
+    @Override
+    protected void onDestroy() {
+        // Unregister since the activity is about to be closed.
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        super.onDestroy();
+
+        if (mNsdHelper != null)
+            mNsdHelper.stopDiscovery();
+    }
+
+    // Our handler for received Intents. This will be called whenever an Intent
+// with an action named "custom-event-name" is broadcasted.
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            tcpServer = intent.getStringExtra("Server");
+            tcpPort =intent.getStringExtra("Port");
+            tcpRate =intent.getStringExtra("Rate");
+            tcpChannels =intent.getIntExtra("Channels",2);
+
+            if (tcpServer != null)
+                mIPAddrText.setText(tcpServer);
+
+            if (tcpPort != null)
+                mAudioPortText.setText(tcpPort);
+
+            if (tcpRate != null) {
+                String[] sampleRateStrings = getResources().getStringArray(R.array.sampleRates);
+                for (int i = 0; i < sampleRateStrings.length; i++) {
+                    if (sampleRateStrings[i].contains(tcpRate)) {
+                        Spinner sampleRateSpinner = (Spinner) findViewById(R.id.spinnerSampleRate);
+                        sampleRateSpinner.setSelection(i);
+                        break;
+                    }
+                }
+            }
+            if(tcpChannels != null) {
+                Spinner stereoSpinner = (Spinner) findViewById(R.id.stereo);
+                if (tcpChannels.equals(1)) {
+                    stereoSpinner.setSelection(0);
+                } else {
+                    stereoSpinner.setSelection(1);
+                }
+            }
+            if (mNsdHelper != null)
+                mNsdHelper.stopDiscovery();
+
+            savePrefs();
+        }
+    };
 
     /*
         The two different approaches here is an attempt to support both an old preferences
@@ -141,6 +234,8 @@ public class MainActivity extends Activity implements OnClickListener {
     static final String STEREO_PREF = "STEREO";
     static final String BUFFER_MS_PREF = "BUFFER_MS";
     static final String RETRY_PREF = "RETRY";
+    static final String DISCOVERY_PREF = "DISCOVERY";
+
 
     ArrayList<String> getListFromPrefs(
             SharedPreferences prefs,
@@ -244,6 +339,7 @@ public class MainActivity extends Activity implements OnClickListener {
         prefsEditor.putInt(RATE_PREF, mSampleRate);
         prefsEditor.putInt(BUFFER_MS_PREF, mBufferMs);
         prefsEditor.putBoolean(RETRY_PREF, mRetry);
+        prefsEditor.putBoolean(DISCOVERY_PREF, mDiscovery);
         if (android.os.Build.VERSION.SDK_INT >= 9) {
             prefsEditor.apply();
         } else {
@@ -327,6 +423,10 @@ public class MainActivity extends Activity implements OnClickListener {
             mIPAddrText.setText((String)mIPAddrList.get(0));
         }
 
+        if (!isEmpty(mIPAddrText)) {
+            this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
+
         mAudioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
         mAudioPortAdapter = new NoFilterArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mAudioPortList);
         mAudioPortText.setAdapter(mAudioPortAdapter);
@@ -367,6 +467,22 @@ public class MainActivity extends Activity implements OnClickListener {
 
         mRetry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
         Log.d(TAG, "mRetry:" + mRetry);
+        CheckBox cRetry = (CheckBox) findViewById(R.id.checkBoxRetry);
+        cRetry.setChecked(mRetry);
+
+        mDiscovery= myPrefs.getBoolean(DISCOVERY_PREF, DEFAULT_DISCOVERY);
+        Log.d(TAG, "mDiscovery:" + mDiscovery);
+        CheckBox cDiscovery = (CheckBox) findViewById(R.id.checkBoxDiscovery);
+        cDiscovery.setChecked(mDiscovery);
+
+        if (cDiscovery.isChecked()){
+            mNsdHelper = new NsdHelper(getApplicationContext());
+            mNsdHelper.initializeNsd();
+
+            mNsdHelper.discoverServices();
+            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mMessageReceiver,
+                    new IntentFilter("nsdDetect"));
+        }
     }
 
     @Override
@@ -460,6 +576,8 @@ public class MainActivity extends Activity implements OnClickListener {
             // Get the retry checkbox
             mRetry = ((CheckBox)findViewById(R.id.checkBoxRetry)).isChecked();
             Log.d(TAG, "retry:" + mRetry);
+            mDiscovery = ((CheckBox)findViewById(R.id.checkBoxDiscovery)).isChecked();
+            Log.d(TAG, "discovery:" + mDiscovery);
             i.putExtra(MusicService.DATA_RETRY, mRetry);
 
             // Extract the retry state
@@ -482,5 +600,8 @@ public class MainActivity extends Activity implements OnClickListener {
             inputManager.hideSoftInputFromWindow(v.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
     }
 }

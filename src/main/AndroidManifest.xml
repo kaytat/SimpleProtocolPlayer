@@ -22,7 +22,7 @@
     android:versionName="0.5.4.0">
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="16"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -36,8 +36,7 @@
         <activity
             android:name="com.kaytat.simpleprotocolplayer.MainActivity"
             android:label="@string/app_title"
-            android:theme="@style/theme_light"
-            android:windowSoftInputMode="stateHidden">
+            android:theme="@style/theme_light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
