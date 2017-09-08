@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -327,6 +328,10 @@ public class MainActivity extends Activity implements OnClickListener {
             mIPAddrText.setText((String)mIPAddrList.get(0));
         }
 
+        if (!isEmpty(mIPAddrText)) {
+            this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
+
         mAudioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
         mAudioPortAdapter = new NoFilterArrayAdapter<String>(this, android.R.layout.simple_list_item_1, mAudioPortList);
         mAudioPortText.setAdapter(mAudioPortAdapter);
@@ -482,5 +487,8 @@ public class MainActivity extends Activity implements OnClickListener {
             inputManager.hideSoftInputFromWindow(v.getWindowToken(),
                     InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+    private boolean isEmpty(EditText etText) {
+        return etText.getText().toString().trim().length() == 0;
     }
 }
