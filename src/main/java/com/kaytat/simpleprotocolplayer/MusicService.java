@@ -133,14 +133,17 @@ public class MusicService extends Service implements MusicFocusable {
     void processPlayRequest(Intent i) {
         if (mState == State.Stopped) {
             tryToGetAudioFocus();
-            playStream(
-                    i.getStringExtra(DATA_IP_ADDRESS),
-                    i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
-                    i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
-                    i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
-                    i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
-                    i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY));
+        } else {
+            stopWorkers();
         }
+
+        playStream(
+                i.getStringExtra(DATA_IP_ADDRESS),
+                i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
+                i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
+                i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
+                i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
+                i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY));
     }
 
     void processStopRequest() {
@@ -169,12 +172,15 @@ public class MusicService extends Service implements MusicFocusable {
 
         // Wait for worker thread to stop if running
 
+        stopWorkers();
+    }
+
+    void stopWorkers() {
         for (WorkerThreadPair worker : workers) {
             worker.stopAndInterrupt();
         }
 
         workers.clear();
-
     }
 
     void tryToGetAudioFocus() {
