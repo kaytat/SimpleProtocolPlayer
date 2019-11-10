@@ -31,7 +31,7 @@ import android.net.wifi.WifiManager.WifiLock;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
