@@ -20,14 +20,18 @@ package com.kaytat.simpleprotocolplayer;
 import java.util.ArrayList;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
+import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * Service that handles media playback. This is the Service through which we perform all the media
@@ -93,6 +97,7 @@ public class MusicService extends Service implements MusicFocusable {
     // area at the top of the screen as an icon -- and as text as well if the user expands the
     // notification area).
     final int NOTIFICATION_ID = 1;
+    final String NOTIFICATION_CHANNEL_ID = "SimpleProtocolPlayer";
 
     Notification mNotification = null;
 
@@ -252,16 +257,32 @@ public class MusicService extends Service implements MusicFocusable {
      * user as a notification. That's why we create the notification here.
      */
     void setUpAsForeground(String text) {
+        createNotificationChannel();
+
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
                 new Intent(getApplicationContext(), MainActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-        mNotification = new Notification();
-        mNotification.tickerText = text;
-        mNotification.icon = R.drawable.ic_stat_playing;
-        mNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-        mNotification.setLatestEventInfo(getApplicationContext(), "SimpleProtocolPlayer",
-                text, pi);
+
+        mNotification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_stat_playing).setOngoing(true)
+                .setContentTitle(NOTIFICATION_CHANNEL_ID).setContentText(text)
+                .setContentIntent(pi).build();
         startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = NOTIFICATION_CHANNEL_ID;
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance);
+            channel.setSound(null,  null);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override

@@ -401,6 +401,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
             // Get the IP address and port and put it in the intent
             Intent i = new Intent(MusicService.ACTION_PLAY);
+            i.setPackage(getPackageName());
             String ipAddr = mIPAddrText.getText().toString();
             String portStr = mAudioPortText.getText().toString();
             if (ipAddr.equals("")) {
@@ -474,7 +475,10 @@ public class MainActivity extends Activity implements OnClickListener {
         }
         else if (target == mStopButton) {
             hideKb();
-            startService(new Intent(MusicService.ACTION_STOP));
+
+            Intent i = new Intent(MusicService.ACTION_STOP);
+            i.setPackage(getPackageName());
+            startService(i);
         }
     }
 
