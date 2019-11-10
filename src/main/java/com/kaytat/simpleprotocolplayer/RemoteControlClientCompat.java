@@ -201,7 +201,6 @@ public class RemoteControlClientCompat {
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_ALBUMARTIST},
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_TITLE},
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_ARTIST},
-         * {@link android.media.MediaMetadataRetriever#METADATA_KEY_AUTHOR},
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_COMPILATION},
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_COMPOSER},
          * {@link android.media.MediaMetadataRetriever#METADATA_KEY_DATE},
