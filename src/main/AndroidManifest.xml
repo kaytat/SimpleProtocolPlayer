@@ -21,15 +21,15 @@
     android:versionCode="12"
     android:versionName="0.5.6.0">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_title" >
+        android:label="@string/app_title">
         <activity
             android:name="com.kaytat.simpleprotocolplayer.MainActivity"
             android:label="@string/app_title"
@@ -43,19 +43,9 @@
         <activity
             android:name="com.kaytat.simpleprotocolplayer.NoticeActivity"
             android:label="@string/notice_title"
-            android:theme="@style/theme_light_nobar" >
-        </activity>
+            android:theme="@style/theme_light_nobar"></activity>
 
-        <service
-            android:name="com.kaytat.simpleprotocolplayer.MusicService"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
-                <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
-            </intent-filter>
-        </service>
-
-        <receiver android:name="com.kaytat.simpleprotocolplayer.MusicIntentReceiver" >
+        <receiver android:name="com.kaytat.simpleprotocolplayer.MusicIntentReceiver">
             <intent-filter>
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
             </intent-filter>
@@ -64,6 +54,14 @@
             </intent-filter>
         </receiver>
 
+        <service
+            android:name="com.kaytat.simpleprotocolplayer.MusicService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
+                <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -18,11 +18,11 @@ package com.kaytat.simpleprotocolplayer;
 
 import android.media.AudioManager;
 import android.util.Log;
-
 import java.lang.reflect.Method;
 
 /**
- * Contains methods to handle registering/unregistering remote control clients.  These methods only
+ * Contains methods to handle registering/unregistering remote control
+ * clients.  These methods only
  * run on ICS devices.  On previous devices, all methods are no-ops.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
@@ -36,13 +36,17 @@ public class RemoteControlHelper {
 
     static {
         try {
-            ClassLoader classLoader = RemoteControlHelper.class.getClassLoader();
+            ClassLoader classLoader =
+                    RemoteControlHelper.class.getClassLoader();
             Class sRemoteControlClientClass =
-                    RemoteControlClientCompat.getActualRemoteControlClientClass(classLoader);
+                    RemoteControlClientCompat
+                            .getActualRemoteControlClientClass(classLoader);
             sRegisterRemoteControlClientMethod = AudioManager.class.getMethod(
-                    "registerRemoteControlClient", new Class[]{sRemoteControlClientClass});
+                    "registerRemoteControlClient",
+                    new Class[]{sRemoteControlClientClass});
             sUnregisterRemoteControlClientMethod = AudioManager.class.getMethod(
-                    "unregisterRemoteControlClient", new Class[]{sRemoteControlClientClass});
+                    "unregisterRemoteControlClient",
+                    new Class[]{sRemoteControlClientClass});
             sHasRemoteControlAPIs = true;
         } catch (ClassNotFoundException e) {
             // Silently fail when running on an OS before ICS.

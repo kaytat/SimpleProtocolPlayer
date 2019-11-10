@@ -17,19 +17,17 @@
 
 package com.kaytat.simpleprotocolplayer;
 
-import java.util.concurrent.ArrayBlockingQueue;
-
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * group everything belongs a stream together,makes multi stream easier
  * including NetworkReadThread BufferToAudioTrackThread and AudioTrack
- * 
  */
 public class WorkerThreadPair {
 
@@ -71,8 +69,9 @@ public class WorkerThreadPair {
 
         audioThread = new BufferToAudioTrackThread(this, "audio:"
                 + serverAddr + ":" + serverPort);
-        networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
-                "net:" + serverAddr + ":" + serverPort);
+        networkThread =
+                new NetworkReadThread(this, serverAddr, serverPort, retry,
+                        "net:" + serverAddr + ":" + serverPort);
 
         audioThread.start();
         networkThread.start();
@@ -109,8 +108,8 @@ public class WorkerThreadPair {
             NUM_PKTS);
 
     public void stopAndInterrupt() {
-        for (ThreadStoppable it : new ThreadStoppable[] { audioThread,
-                networkThread }) {
+        for (ThreadStoppable it : new ThreadStoppable[]{audioThread,
+                networkThread}) {
 
             try {
                 it.customStop();

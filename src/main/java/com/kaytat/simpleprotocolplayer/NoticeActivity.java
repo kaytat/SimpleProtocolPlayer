@@ -21,12 +21,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
-
 import java.io.InputStream;
 import java.io.IOException;
 
-public class NoticeActivity extends Activity
-{
+public class NoticeActivity extends Activity {
     static final String TAG = "NoticeActivity";
 
     /**
@@ -35,8 +33,7 @@ public class NoticeActivity extends Activity
      * describe what is to be displayed in the screen.
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // See assets/res/any/layout/styled_text.xml for this
@@ -60,11 +57,10 @@ public class NoticeActivity extends Activity
             is.close();
 
             // Finally stick the string into the text view.
-            TextView tv = (TextView)findViewById(R.id.notice_view);
+            TextView tv = (TextView) findViewById(R.id.notice_view);
             if (readBytes != 0) {
                 tv.setText(new String(buffer));
-            }
-            else {
+            } else {
                 tv.setText("Error");
             }
         } catch (IOException e) {

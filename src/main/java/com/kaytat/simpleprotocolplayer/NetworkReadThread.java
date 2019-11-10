@@ -17,11 +17,10 @@
 
 package com.kaytat.simpleprotocolplayer;
 
+import android.util.Log;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
-
-import android.util.Log;
 
 /**
  * Worker thread reads data from the network
@@ -32,10 +31,10 @@ class NetworkReadThread extends ThreadStoppable {
     static final int RETRY_SLEEP_TIME = 20;
     static final int RETRY_COUNT = 20;
 
-    static final int[][] RETRY_PARAMS = new int [][] {
-        { 5, 12 },
-        { 20, 6 },
-        { 60, 2 }
+    static final int[][] RETRY_PARAMS = new int[][]{
+            {5, 12},
+            {20, 6},
+            {60, 2}
     };
 
     WorkerThreadPair syncObject;
@@ -110,7 +109,8 @@ class NetworkReadThread extends ThreadStoppable {
                 }
             }
 
-            Log.d(TAG, "retryCount:" + retryCount + " retryParamIndex:" + retryParamIndex);
+            Log.d(TAG, "retryCount:" + retryCount + " retryParamIndex:" +
+                    retryParamIndex);
 
             try {
                 Thread.sleep(RETRY_PARAMS[retryParamIndex][0] * 1000);

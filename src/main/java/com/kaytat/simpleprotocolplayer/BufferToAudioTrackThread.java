@@ -28,7 +28,8 @@ class BufferToAudioTrackThread extends ThreadStoppable {
 
     private WorkerThreadPair syncObject;
 
-    public BufferToAudioTrackThread(WorkerThreadPair syncObject, String debugTag) {
+    public BufferToAudioTrackThread(WorkerThreadPair syncObject,
+            String debugTag) {
         this.setName(debugTag);
         TAG = debugTag;
         this.mTrack = syncObject.mTrack;
