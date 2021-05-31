@@ -5,25 +5,25 @@ buildscript {
         // the google() method. And you need to include this repo to download
         // Android Gradle plugin 3.0.0 or higher.
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:4.2.1'
     }
 }
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.kaytat.simpleprotocolplayer"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
     }
     buildTypes {
         release {
@@ -36,5 +36,5 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.core:core:1.1.0'
+    implementation 'androidx.core:core:1.5.0'
 }
