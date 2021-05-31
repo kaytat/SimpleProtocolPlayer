@@ -221,21 +221,24 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:orientation="horizontal">
+      android:orientation="horizontal"
+      style="?android:attr/buttonBarStyle" >
 
       <Button
         android:id="@+id/playButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"
-        android:background="@drawable/btn_play" />
+        android:background="@drawable/btn_play"
+        style="?android:attr/buttonBarButtonStyle" />
 
       <Button
         android:id="@+id/stopButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"
-        android:background="@drawable/btn_stop" />
+        android:background="@drawable/btn_stop"
+        style="?android:attr/buttonBarButtonStyle" />
 
     </LinearLayout>
 

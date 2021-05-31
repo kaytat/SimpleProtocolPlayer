@@ -17,14 +17,14 @@
 
 package com.kaytat.simpleprotocolplayer;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class NoticeActivity extends Activity {
+public class NoticeActivity extends AppCompatActivity {
   static final String TAG = "NoticeActivity";
 
   /**

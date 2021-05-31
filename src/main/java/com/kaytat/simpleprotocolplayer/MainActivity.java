@@ -22,7 +22,6 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -44,6 +43,7 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +56,7 @@ import java.util.Locale;
  * player buttons and lets the user click them. No media handling is done
  * here -- everything is done by passing Intents to our {@link MusicService}.
  */
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final String TAG = "MainActivity";
 
   AutoCompleteTextView mIPAddrText;
