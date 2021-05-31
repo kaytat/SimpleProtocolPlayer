@@ -18,9 +18,9 @@
 package com.kaytat.simpleprotocolplayer;
 
 class ThreadStoppable extends Thread {
-    volatile boolean running = true;
+  volatile boolean running = true;
 
-    public void customStop() {
-        running = false;
-    }
+  public void customStop() {
+    running = false;
+  }
 }

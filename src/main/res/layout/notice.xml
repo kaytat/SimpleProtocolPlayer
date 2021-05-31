@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2007 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2007 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -18,12 +17,14 @@
      See corresponding Java code com.android.sdk.content.StyledText -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical">
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical">
 
-     <TextView android:id="@+id/notice_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars = "vertical"
-        android:textStyle="normal"/>
+  <TextView
+    android:id="@+id/notice_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="vertical"
+    android:textStyle="normal" />
 </ScrollView>

@@ -24,40 +24,40 @@ import android.util.Log;
  * Worker thread that takes data from the buffer and sends it to audio track
  */
 class BufferToAudioTrackThread extends ThreadStoppable {
-    final String TAG;
+  final String TAG;
 
-    private WorkerThreadPair syncObject;
+  private WorkerThreadPair syncObject;
 
-    public BufferToAudioTrackThread(WorkerThreadPair syncObject,
-            String debugTag) {
-        this.setName(debugTag);
-        TAG = debugTag;
-        this.mTrack = syncObject.mTrack;
-        this.syncObject = syncObject;
+  public BufferToAudioTrackThread(WorkerThreadPair syncObject,
+      String debugTag) {
+    this.setName(debugTag);
+    TAG = debugTag;
+    this.mTrack = syncObject.mTrack;
+    this.syncObject = syncObject;
+  }
+
+  // Media track
+  private AudioTrack mTrack = null;
+
+  @Override
+  public void run() {
+    Log.i(TAG, "start");
+
+    mTrack.play();
+
+    try {
+      while (running) {
+        mTrack.write(syncObject.dataQueue.take(), 0,
+            syncObject.packet_size);
+      }
+    } catch (Exception e) {
+      Log.e(TAG, "exception:" + e);
     }
 
-    // Media track
-    private AudioTrack mTrack = null;
-
-    @Override
-    public void run() {
-        Log.i(TAG, "start");
-
-        mTrack.play();
-
-        try {
-            while (running) {
-                mTrack.write(syncObject.dataQueue.take(), 0,
-                        syncObject.packet_size);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "exception:" + e);
-        }
-
-        // Do some cleanup
-        mTrack.stop();
-        mTrack.release();
-        mTrack = null;
-        Log.i(TAG, "done");
-    }
+    // Do some cleanup
+    mTrack.stop();
+    mTrack.release();
+    mTrack = null;
+    Log.i(TAG, "done");
+  }
 }

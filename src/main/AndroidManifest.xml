@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright (C) 2011 The Android Open Source Project
   Copyright (C) 2014 kaytat
 
@@ -17,51 +16,51 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kaytat.simpleprotocolplayer"
-    android:versionCode="12"
-    android:versionName="0.5.6.0">
+  package="com.kaytat.simpleprotocolplayer"
+  android:versionCode="12"
+  android:versionName="0.5.6.0">
 
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+  <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_title">
-        <activity
-            android:name="com.kaytat.simpleprotocolplayer.MainActivity"
-            android:label="@string/app_title"
-            android:theme="@style/theme_light">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+  <application
+    android:allowBackup="true"
+    android:icon="@drawable/ic_launcher"
+    android:label="@string/app_title">
+    <activity
+      android:name="com.kaytat.simpleprotocolplayer.MainActivity"
+      android:label="@string/app_title"
+      android:theme="@style/theme_light">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
 
-        <activity
-            android:name="com.kaytat.simpleprotocolplayer.NoticeActivity"
-            android:label="@string/notice_title"
-            android:theme="@style/theme_light_nobar"></activity>
+    <activity
+      android:name="com.kaytat.simpleprotocolplayer.NoticeActivity"
+      android:label="@string/notice_title"
+      android:theme="@style/theme_light_nobar"></activity>
 
-        <receiver android:name="com.kaytat.simpleprotocolplayer.MusicIntentReceiver">
-            <intent-filter>
-                <action android:name="android.media.AUDIO_BECOMING_NOISY" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
-            </intent-filter>
-        </receiver>
+    <receiver android:name="com.kaytat.simpleprotocolplayer.MusicIntentReceiver">
+      <intent-filter>
+        <action android:name="android.media.AUDIO_BECOMING_NOISY" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.MEDIA_BUTTON" />
+      </intent-filter>
+    </receiver>
 
-        <service
-            android:name="com.kaytat.simpleprotocolplayer.MusicService"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
-                <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
-            </intent-filter>
-        </service>
-    </application>
+    <service
+      android:name="com.kaytat.simpleprotocolplayer.MusicService"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
+        <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
+      </intent-filter>
+    </service>
+  </application>
 
 </manifest>
