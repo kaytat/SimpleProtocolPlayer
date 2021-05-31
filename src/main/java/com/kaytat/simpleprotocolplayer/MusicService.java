@@ -113,7 +113,8 @@ public class MusicService extends Service implements MusicFocusable {
 
     // Create the Wifi lock (this does not acquire the lock, this just
     // creates it)
-    mWifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+    mWifiLock = ((WifiManager)
+        getApplicationContext().getSystemService(Context.WIFI_SERVICE))
         .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
 
     // create the Audio Focus Helper, if the Audio Focus feature is
