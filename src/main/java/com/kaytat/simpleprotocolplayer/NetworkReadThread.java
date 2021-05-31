@@ -28,21 +28,18 @@ import java.net.Socket;
 class NetworkReadThread extends ThreadStoppable {
   final String TAG;
 
-  static final int RETRY_SLEEP_TIME = 20;
-  static final int RETRY_COUNT = 20;
-
   static final int[][] RETRY_PARAMS = new int[][]{
       {5, 12},
       {20, 6},
       {60, 2}
   };
 
-  WorkerThreadPair syncObject;
-  String ipAddr;
-  int port;
-  boolean attemptConnectionRetry;
-  byte[][] dataBuffer;
-  int numBuffers;
+  final WorkerThreadPair syncObject;
+  final String ipAddr;
+  final int port;
+  final boolean attemptConnectionRetry;
+  final byte[][] dataBuffer;
+  final int numBuffers;
   int bufferIndex;
 
   // socket timeout at 5 seconds
@@ -62,10 +59,10 @@ class NetworkReadThread extends ThreadStoppable {
     this.attemptConnectionRetry = attemptConnectionRetry;
 
     // since we use BlockingQueue to pass data
-    // so at most we will use NUM_PKTS (in queue) + 1 (taken by
+    // so at most we will use NUM_PACKETS (in queue) + 1 (taken by
     // audioThread) +1 (read socket)
     // buffers .
-    numBuffers = WorkerThreadPair.NUM_PKTS + 2;
+    numBuffers = WorkerThreadPair.NUM_PACKETS + 2;
     bufferIndex = 0;
     dataBuffer = new byte[numBuffers][];
     for (int i = 0; i < numBuffers; i++) {
@@ -76,7 +73,6 @@ class NetworkReadThread extends ThreadStoppable {
   @Override
   public void run() {
     Log.i(TAG, "start");
-    boolean retry = true;
     boolean connectionMade;
     int retryCount = 0;
     int retryParamIndex = 0;
@@ -113,9 +109,10 @@ class NetworkReadThread extends ThreadStoppable {
           retryParamIndex);
 
       try {
+        //noinspection BusyWait
         Thread.sleep(RETRY_PARAMS[retryParamIndex][0] * 1000);
       } catch (Exception e) {
-
+        // Ignore.
       }
       retryCount++;
     }
@@ -168,7 +165,6 @@ class NetworkReadThread extends ThreadStoppable {
         } catch (IOException iex) {
           Log.i(TAG, "exception while closing socket:" + iex);
         }
-        socket = null;
       }
     }
 

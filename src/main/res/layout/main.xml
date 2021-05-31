@@ -40,6 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center"
+        android:layout_toStartOf="@+id/center"
         android:layout_centerVertical="true"
         android:text="@string/labelIpAddr" />
 
@@ -49,8 +50,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center"
+        android:layout_toEndOf="@+id/center"
         android:layout_alignParentRight="true"
-        android:inputType="text" />
+        android:layout_alignParentEnd="true"
+        android:inputType="text"
+        android:hint="@string/hintIpAddr" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -71,6 +75,7 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/center2"
+        android:layout_toStartOf="@+id/center2"
         android:text="@string/labelAudioPort" />
 
       <AutoCompleteTextView
@@ -79,9 +84,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center2"
+        android:layout_toEndOf="@+id/center2"
         android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:inputType="number"
-        android:text="@string/defaultAudioPort" />
+        android:text="@string/defaultAudioPort"
+        android:hint="@string/hintAudioPort" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -101,6 +109,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center3"
+        android:layout_toStartOf="@+id/center3"
         android:layout_centerVertical="true"
         android:text="@string/labelSampleRate" />
 
@@ -109,6 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center3"
+        android:layout_toEndOf="@+id/center3"
         android:entries="@array/sampleRates" />
     </RelativeLayout>
 
@@ -129,6 +139,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center4"
+        android:layout_toStartOf="@+id/center4"
         android:layout_centerVertical="true"
         android:text="@string/labelStereoMono" />
 
@@ -137,6 +148,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center4"
+        android:layout_toEndOf="@+id/center4"
         android:entries="@array/stereo" />
     </RelativeLayout>
 
@@ -157,6 +169,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center5"
+        android:layout_toStartOf="@+id/center5"
         android:layout_centerVertical="true"
         android:text="@string/bufferSize" />
 
@@ -167,7 +180,10 @@
         android:ems="10"
         android:id="@+id/editTextBufferSize"
         android:layout_toRightOf="@+id/center5"
-        android:layout_gravity="center_horizontal" />
+        android:layout_toEndOf="@+id/center5"
+        android:layout_gravity="center_horizontal"
+        android:hint="@string/bufferSizeHint"
+        android:importantForAutofill="no" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -187,6 +203,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center6"
+        android:layout_toStartOf="@+id/center6"
         android:layout_centerVertical="true"
         android:text="@string/retry" />
 
@@ -195,7 +212,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/checkBoxRetry"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/center6" />
+        android:layout_toRightOf="@+id/center6"
+        android:layout_toEndOf="@+id/center6" />
     </RelativeLayout>
 
     <LinearLayout
@@ -206,14 +224,14 @@
       android:orientation="horizontal">
 
       <Button
-        android:id="@+id/playbutton"
+        android:id="@+id/playButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"
         android:background="@drawable/btn_play" />
 
       <Button
-        android:id="@+id/stopbutton"
+        android:id="@+id/stopButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"

@@ -32,8 +32,8 @@ import android.media.AudioManager;
  */
 public class AudioFocusHelper
     implements AudioManager.OnAudioFocusChangeListener {
-  AudioManager mAM;
-  MusicFocusable mFocusable;
+  final AudioManager mAM;
+  final MusicFocusable mFocusable;
 
   public AudioFocusHelper(Context ctx, MusicFocusable focusable) {
     mAM = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);

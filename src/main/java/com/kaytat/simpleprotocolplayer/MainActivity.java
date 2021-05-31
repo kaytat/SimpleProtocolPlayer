@@ -21,6 +21,7 @@
 
 package com.kaytat.simpleprotocolplayer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -31,7 +32,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -49,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Main activity: shows media player buttons. This activity shows the media
@@ -79,54 +80,43 @@ public class MainActivity extends Activity implements OnClickListener {
    * event listeners and start the background service ({@link MusicService}
    * ) that will handle the actual media playback.
    */
+  @SuppressLint("ClickableViewAccessibility")
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    mIPAddrText = (AutoCompleteTextView) findViewById(R.id.editTextIpAddr);
+    mIPAddrText = findViewById(R.id.editTextIpAddr);
     mAudioPortText =
-        (AutoCompleteTextView) findViewById(R.id.editTextAudioPort);
-    mStopButton = (Button) findViewById(R.id.stopbutton);
-    mPlayButton = (Button) findViewById(R.id.playbutton);
-    mStopButton = (Button) findViewById(R.id.stopbutton);
+        findViewById(R.id.editTextAudioPort);
+
+    mPlayButton = findViewById(R.id.playButton);
+    mStopButton = findViewById(R.id.stopButton);
 
     mPlayButton.setOnClickListener(this);
     mStopButton.setOnClickListener(this);
 
     // Allow full list to be shown on first focus
-    mIPAddrText.setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
+    mIPAddrText.setOnTouchListener((v, event) -> {
+      mIPAddrText.showDropDown();
+      return false;
+    });
+    mIPAddrText.setOnFocusChangeListener((v, hasFocus) -> {
+      if (hasFocus && mIPAddrText.getAdapter() != null) {
         mIPAddrText.showDropDown();
-        return false;
       }
-    });
-    mIPAddrText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-      @Override
-      public void onFocusChange(View v, boolean hasFocus) {
-        if (hasFocus && mIPAddrText.getAdapter() != null) {
-          mIPAddrText.showDropDown();
-        }
 
-      }
     });
-    mAudioPortText.setOnTouchListener(new View.OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        mAudioPortText.showDropDown();
-        return false;
-      }
+    mAudioPortText.setOnTouchListener((v, event) -> {
+      mAudioPortText.showDropDown();
+      return false;
     });
     mAudioPortText
-        .setOnFocusChangeListener(new View.OnFocusChangeListener() {
-          @Override
-          public void onFocusChange(View v, boolean hasFocus) {
-            if (hasFocus && mIPAddrText.getAdapter() != null) {
-              mAudioPortText.showDropDown();
-            }
-
+        .setOnFocusChangeListener((v, hasFocus) -> {
+          if (hasFocus && mIPAddrText.getAdapter() != null) {
+            mAudioPortText.showDropDown();
           }
+
         });
   }
 
@@ -152,7 +142,7 @@ public class MainActivity extends Activity implements OnClickListener {
       String keySingle) {
     // Retrieve the values from the shared preferences
     String jsonString = prefs.getString(keyJson, null);
-    ArrayList<String> arrayList = new ArrayList<String>();
+    ArrayList<String> arrayList = new ArrayList<>();
 
     if (jsonString == null || jsonString.length() == 0) {
       // Try to fill with the original key used
@@ -167,12 +157,10 @@ public class MainActivity extends Activity implements OnClickListener {
         // Note that the array is hard-coded as the element labelled
         // as 'list'
         JSONArray jsonArray = jsonObject.getJSONArray("list");
-        if (jsonArray != null) {
-          for (int i = 0; i < jsonArray.length(); i++) {
-            String s = (String) jsonArray.get(i);
-            if (s != null && s.length() != 0) {
-              arrayList.add((String) s);
-            }
+        for (int i = 0; i < jsonArray.length(); i++) {
+          String s = (String) jsonArray.get(i);
+          if (s != null && s.length() != 0) {
+            arrayList.add(s);
           }
         }
       } catch (JSONException jsonException) {
@@ -237,30 +225,14 @@ public class MainActivity extends Activity implements OnClickListener {
     prefsEditor.putInt(RATE_PREF, mSampleRate);
     prefsEditor.putInt(BUFFER_MS_PREF, mBufferMs);
     prefsEditor.putBoolean(RETRY_PREF, mRetry);
-    if (android.os.Build.VERSION.SDK_INT >= 9) {
-      prefsEditor.apply();
-    } else {
-      prefsEditor.commit();
-    }
+    prefsEditor.apply();
 
     // Update adapters
     mIPAddrAdapter.clear();
-    if (android.os.Build.VERSION.SDK_INT >= 11) {
-      mIPAddrAdapter.addAll(mIPAddrList);
-    } else {
-      for (String ip : mIPAddrList) {
-        mIPAddrAdapter.add(ip);
-      }
-    }
+    mIPAddrAdapter.addAll(mIPAddrList);
     mIPAddrAdapter.notifyDataSetChanged();
     mAudioPortAdapter.clear();
-    if (android.os.Build.VERSION.SDK_INT >= 11) {
-      mAudioPortAdapter.addAll(mAudioPortList);
-    } else {
-      for (String port : mAudioPortList) {
-        mAudioPortAdapter.add(port);
-      }
-    }
+    mAudioPortAdapter.addAll(mAudioPortList);
     mAudioPortAdapter.notifyDataSetChanged();
   }
 
@@ -270,10 +242,10 @@ public class MainActivity extends Activity implements OnClickListener {
     savePrefs();
   }
 
-  private class NoFilterArrayAdapter<T>
+  private static class NoFilterArrayAdapter<T>
       extends ArrayAdapter<T> {
-    private Filter filter = new NoFilter();
-    public List<T> items;
+    private final Filter filter = new NoFilter();
+    public final List<T> items;
 
     @Override
     public Filter getFilter() {
@@ -314,12 +286,12 @@ public class MainActivity extends Activity implements OnClickListener {
         this.getSharedPreferences("myPrefs", MODE_PRIVATE);
 
     mIPAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
-    mIPAddrAdapter = new NoFilterArrayAdapter<String>(this,
+    mIPAddrAdapter = new NoFilterArrayAdapter<>(this,
         android.R.layout.simple_list_item_1, mIPAddrList);
     mIPAddrText.setAdapter(mIPAddrAdapter);
     mIPAddrText.setThreshold(1);
     if (mIPAddrList.size() != 0) {
-      mIPAddrText.setText((String) mIPAddrList.get(0));
+      mIPAddrText.setText(mIPAddrList.get(0));
     }
 
     if (!isEmpty(mIPAddrText)) {
@@ -328,12 +300,12 @@ public class MainActivity extends Activity implements OnClickListener {
     }
 
     mAudioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
-    mAudioPortAdapter = new NoFilterArrayAdapter<String>(this,
+    mAudioPortAdapter = new NoFilterArrayAdapter<>(this,
         android.R.layout.simple_list_item_1, mAudioPortList);
     mAudioPortText.setAdapter(mAudioPortAdapter);
     mAudioPortText.setThreshold(1);
     if (mAudioPortList.size() != 0) {
-      mAudioPortText.setText((String) mAudioPortList.get(0));
+      mAudioPortText.setText(mAudioPortList.get(0));
     }
 
     // These hard-coded values should match the defaults in the strings
@@ -347,7 +319,7 @@ public class MainActivity extends Activity implements OnClickListener {
     for (int i = 0; i < sampleRateStrings.length; i++) {
       if (sampleRateStrings[i].contains(rateString)) {
         Spinner sampleRateSpinner =
-            (Spinner) findViewById(R.id.spinnerSampleRate);
+            findViewById(R.id.spinnerSampleRate);
         sampleRateSpinner.setSelection(i);
         break;
       }
@@ -355,7 +327,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
     mStereo = myPrefs.getBoolean(STEREO_PREF, MusicService.DEFAULT_STEREO);
     String[] stereoStrings = res.getStringArray(R.array.stereo);
-    Spinner stereoSpinner = (Spinner) findViewById(R.id.stereo);
+    Spinner stereoSpinner = findViewById(R.id.stereo);
     String stereoKey = getResources().getString(R.string.stereoKey);
     if (stereoStrings[0].contains(stereoKey) == mStereo) {
       stereoSpinner.setSelection(0);
@@ -366,8 +338,8 @@ public class MainActivity extends Activity implements OnClickListener {
     mBufferMs =
         myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
     Log.d(TAG, "mBufferMs:" + mBufferMs);
-    EditText e = (EditText) findViewById(R.id.editTextBufferSize);
-    e.setText(Integer.toString(mBufferMs));
+    EditText e = findViewById(R.id.editTextBufferSize);
+    e.setText(String.format(Locale.getDefault(), "%d", mBufferMs));
 
     mRetry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
     Log.d(TAG, "mRetry:" + mRetry);
@@ -382,13 +354,11 @@ public class MainActivity extends Activity implements OnClickListener {
   }
 
   public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-    case R.id.notice_item:
+    if (item.getItemId() == R.id.notice_item) {
       Intent intent = new Intent(this, NoticeActivity.class);
       startActivity(intent);
       return true;
-
-    default:
+    } else {
       return super.onOptionsItemSelected(item);
     }
   }
@@ -431,7 +401,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
       // Extract sample rate
       Spinner sampleRateSpinner =
-          (Spinner) findViewById(R.id.spinnerSampleRate);
+          findViewById(R.id.spinnerSampleRate);
       String rateStr =
           String.valueOf(sampleRateSpinner.getSelectedItem());
       String[] rateSplit = rateStr.split(" ");
@@ -447,7 +417,7 @@ public class MainActivity extends Activity implements OnClickListener {
       }
 
       // Extract stereo/mono setting
-      Spinner stereoSpinner = (Spinner) findViewById(R.id.stereo);
+      Spinner stereoSpinner = findViewById(R.id.stereo);
       String stereoSettingString =
           String.valueOf(stereoSpinner.getSelectedItem());
       String stereoKey = getResources().getString(R.string.stereoKey);
@@ -456,7 +426,7 @@ public class MainActivity extends Activity implements OnClickListener {
       Log.i(TAG, "stereo:" + mStereo);
 
       // Get the latest buffer entry
-      EditText e = (EditText) findViewById(R.id.editTextBufferSize);
+      EditText e = findViewById(R.id.editTextBufferSize);
       String bufferMsString = e.getText().toString();
       if (bufferMsString.length() != 0) {
         try {

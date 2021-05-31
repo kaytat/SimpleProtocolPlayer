@@ -57,11 +57,11 @@ public class NoticeActivity extends Activity {
       is.close();
 
       // Finally stick the string into the text view.
-      TextView tv = (TextView) findViewById(R.id.notice_view);
+      TextView tv = findViewById(R.id.notice_view);
       if (readBytes != 0) {
         tv.setText(new String(buffer));
       } else {
-        tv.setText("Error");
+        tv.setText(R.string.error);
       }
     } catch (IOException e) {
       // Should never happen!

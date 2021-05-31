@@ -26,7 +26,7 @@ import android.util.Log;
 class BufferToAudioTrackThread extends ThreadStoppable {
   final String TAG;
 
-  private WorkerThreadPair syncObject;
+  private final WorkerThreadPair syncObject;
 
   public BufferToAudioTrackThread(WorkerThreadPair syncObject,
       String debugTag) {
@@ -37,7 +37,7 @@ class BufferToAudioTrackThread extends ThreadStoppable {
   }
 
   // Media track
-  private AudioTrack mTrack = null;
+  private AudioTrack mTrack;
 
   @Override
   public void run() {

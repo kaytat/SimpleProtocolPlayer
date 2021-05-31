@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 /**
- * Receives broadcasted intents. In particular, we are interested in the
+ * Receives broadcast intents. In particular, we are interested in the
  * android.media.AUDIO_BECOMING_NOISY and android.intent.action.MEDIA_BUTTON
  * intents, which is broadcast, for example, when the user disconnects the
  * headphones. This class works because we are declaring it in a &lt;
@@ -49,11 +49,9 @@ public class MusicIntentReceiver extends BroadcastReceiver {
         return;
       }
 
-      switch (keyEvent.getKeyCode()) {
-      case KeyEvent.KEYCODE_MEDIA_STOP:
+      if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_STOP) {
         Log.i(TAG, "onReceive - media button stop");
         context.startService(new Intent(MusicService.ACTION_STOP));
-        break;
       }
     }
   }

@@ -25,29 +25,32 @@ import java.lang.reflect.Method;
  * clients.  These methods only
  * run on ICS devices.  On previous devices, all methods are no-ops.
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"rawtypes"})
 public class RemoteControlHelper {
   private static final String TAG = "RemoteControlHelper";
 
-  private static boolean sHasRemoteControlAPIs = false;
+  private static final boolean sHasRemoteControlAPIs;
 
   private static Method sRegisterRemoteControlClientMethod;
   private static Method sUnregisterRemoteControlClientMethod;
 
   static {
+    boolean hasRemoteControlAPIs = false;
     try {
       ClassLoader classLoader =
           RemoteControlHelper.class.getClassLoader();
-      Class sRemoteControlClientClass =
-          RemoteControlClientCompat
-              .getActualRemoteControlClientClass(classLoader);
-      sRegisterRemoteControlClientMethod = AudioManager.class.getMethod(
-          "registerRemoteControlClient",
-          new Class[]{sRemoteControlClientClass});
-      sUnregisterRemoteControlClientMethod = AudioManager.class.getMethod(
-          "unregisterRemoteControlClient",
-          new Class[]{sRemoteControlClientClass});
-      sHasRemoteControlAPIs = true;
+      if (classLoader != null) {
+        Class sRemoteControlClientClass =
+            RemoteControlClientCompat
+                .getActualRemoteControlClientClass(classLoader);
+        sRegisterRemoteControlClientMethod = AudioManager.class.getMethod(
+            "registerRemoteControlClient",
+            sRemoteControlClientClass);
+        sUnregisterRemoteControlClientMethod = AudioManager.class.getMethod(
+            "unregisterRemoteControlClient",
+            sRemoteControlClientClass);
+        hasRemoteControlAPIs = true;
+      }
     } catch (ClassNotFoundException e) {
       // Silently fail when running on an OS before ICS.
     } catch (NoSuchMethodException e) {
@@ -57,6 +60,7 @@ public class RemoteControlHelper {
     } catch (SecurityException e) {
       // Silently fail when running on an OS before ICS.
     }
+    sHasRemoteControlAPIs = hasRemoteControlAPIs;
   }
 
   public static void registerRemoteControlClient(AudioManager audioManager,

@@ -33,9 +33,9 @@ public class WorkerThreadPair {
 
   private static final String TAG = WorkerThreadPair.class.getSimpleName();
 
-  private BufferToAudioTrackThread audioThread;
-  private NetworkReadThread networkThread;
-  AudioTrack mTrack;
+  private final BufferToAudioTrackThread audioThread;
+  private final NetworkReadThread networkThread;
+  final AudioTrack mTrack;
 
   public WorkerThreadPair(
       MusicService musicService,
@@ -99,13 +99,13 @@ public class WorkerThreadPair {
     return result;
   }
 
-  static public final int NUM_PKTS = 3;
+  static public final int NUM_PACKETS = 3;
 
   // The amount of data to read from the network before sending to AudioTrack
-  int packet_size;
+  final int packet_size;
 
-  final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<byte[]>(
-      NUM_PKTS);
+  final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(
+      NUM_PACKETS);
 
   public void stopAndInterrupt() {
     for (ThreadStoppable it : new ThreadStoppable[]{audioThread,
@@ -124,18 +124,15 @@ public class WorkerThreadPair {
     }
   }
 
-  private MusicService musicService;
+  private final MusicService musicService;
 
   public void brokenShutdown() {
     // Broke out of loop unexpectedly. Shutdown.
     Handler h = new Handler(musicService.getMainLooper());
-    Runnable r = new Runnable() {
-      @Override
-      public void run() {
-        Toast.makeText(musicService.getApplicationContext(),
-            "Unable to stream", Toast.LENGTH_SHORT).show();
-        musicService.processStopRequest();
-      }
+    Runnable r = () -> {
+      Toast.makeText(musicService.getApplicationContext(),
+          "Unable to stream", Toast.LENGTH_SHORT).show();
+      musicService.processStopRequest();
     };
     h.post(r);
   }

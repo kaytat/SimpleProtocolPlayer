@@ -18,7 +18,9 @@
 
   <string name="app_title">Simple Protocol Player</string>
   <string name="labelIpAddr">IP Address</string>
+  <string name="hintIpAddr">IP Address</string>
   <string name="labelAudioPort">Audio Port</string>
+  <string name="hintAudioPort">Audio Port</string>
   <string name="defaultAudioPort">12345</string>
   <string name="notice_item">Notice</string>
   <string name="notice_title">Notice</string>
@@ -39,5 +41,7 @@
   <!-- used for searching stereo spinner -->
   <string name="stereoKey">Stereo</string>
   <string name="bufferSize">Buffer size (in ms)</string>
+  <string name="bufferSizeHint">Buffer size</string>
   <string name="retry">Enable network retries</string>
+  <string name="error">Error</string>
 </resources>

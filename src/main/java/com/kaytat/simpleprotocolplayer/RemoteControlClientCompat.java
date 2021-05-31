@@ -45,47 +45,50 @@ public class RemoteControlClientCompat {
   private static Method sRCCSetPlayStateMethod;
   private static Method sRCCSetTransportControlFlags;
 
-  private static boolean sHasRemoteControlAPIs = false;
+  private static final boolean sHasRemoteControlAPIs;
 
   static {
+    boolean hasRemoteControlAPIs = false;
     try {
       ClassLoader classLoader =
           RemoteControlClientCompat.class.getClassLoader();
-      sRemoteControlClientClass =
-          getActualRemoteControlClientClass(classLoader);
-      // dynamically populate the playstate and flag values in case
-      // they change
-      // in future versions.
-      for (Field field : RemoteControlClientCompat.class.getFields()) {
-        try {
-          Field realField =
-              sRemoteControlClientClass.getField(field.getName());
-          Object realValue = realField.get(null);
-          field.set(null, realValue);
-        } catch (NoSuchFieldException e) {
-          Log.w(TAG, "Could not get real field: " + field.getName());
-        } catch (IllegalArgumentException e) {
-          Log.w(TAG, "Error trying to pull field value for: " +
-              field.getName()
-              + " " + e.getMessage());
-        } catch (IllegalAccessException e) {
-          Log.w(TAG, "Error trying to pull field value for: " +
-              field.getName()
-              + " " + e.getMessage());
+      if (classLoader != null) {
+        sRemoteControlClientClass =
+            getActualRemoteControlClientClass(classLoader);
+        // dynamically populate the playState and flag values in case
+        // they change
+        // in future versions.
+        for (Field field : RemoteControlClientCompat.class.getFields()) {
+          try {
+            Field realField =
+                sRemoteControlClientClass.getField(field.getName());
+            Object realValue = realField.get(null);
+            field.set(null, realValue);
+          } catch (NoSuchFieldException e) {
+            Log.w(TAG, "Could not get real field: " + field.getName());
+          } catch (IllegalArgumentException e) {
+            Log.w(TAG, "Error trying to pull field value for: " +
+                field.getName()
+                + " " + e.getMessage());
+          } catch (IllegalAccessException e) {
+            Log.w(TAG, "Error trying to pull field value for: " +
+                field.getName()
+                + " " + e.getMessage());
+          }
         }
+
+        // get the required public methods on RemoteControlClient
+        sRCCEditMetadataMethod =
+            sRemoteControlClientClass.getMethod("editMetadata",
+                boolean.class);
+        sRCCSetPlayStateMethod =
+            sRemoteControlClientClass.getMethod("setPlaybackState",
+                int.class);
+        sRCCSetTransportControlFlags = sRemoteControlClientClass.getMethod(
+            "setTransportControlFlags", int.class);
+
+        hasRemoteControlAPIs = true;
       }
-
-      // get the required public methods on RemoteControlClient
-      sRCCEditMetadataMethod =
-          sRemoteControlClientClass.getMethod("editMetadata",
-              boolean.class);
-      sRCCSetPlayStateMethod =
-          sRemoteControlClientClass.getMethod("setPlaybackState",
-              int.class);
-      sRCCSetTransportControlFlags = sRemoteControlClientClass.getMethod(
-          "setTransportControlFlags", int.class);
-
-      sHasRemoteControlAPIs = true;
     } catch (ClassNotFoundException e) {
       // Silently fail when running on an OS before ICS.
     } catch (NoSuchMethodException e) {
@@ -95,6 +98,7 @@ public class RemoteControlClientCompat {
     } catch (SecurityException e) {
       // Silently fail when running on an OS before ICS.
     }
+    sHasRemoteControlAPIs = hasRemoteControlAPIs;
   }
 
   public static Class getActualRemoteControlClientClass(
@@ -146,7 +150,7 @@ public class RemoteControlClientCompat {
    * displayed for the associated client. Once the metadata has been
    * "applied", you cannot reuse this instance of the MetadataEditor.
    */
-  public class MetadataEditorCompat {
+  public static class MetadataEditorCompat {
 
     private Method mPutStringMethod;
     private Method mPutBitmapMethod;
@@ -154,12 +158,12 @@ public class RemoteControlClientCompat {
     private Method mClearMethod;
     private Method mApplyMethod;
 
-    private Object mActualMetadataEditor;
+    private final Object mActualMetadataEditor;
 
     /**
      * The metadata key for the content artwork / album art.
      */
-    public final static int METADATA_KEY_ARTWORK = 100;
+    public static final int METADATA_KEY_ARTWORK = 100;
 
     private MetadataEditorCompat(Object actualMetadataEditor) {
       if (sHasRemoteControlAPIs && actualMetadataEditor == null) {
@@ -180,9 +184,9 @@ public class RemoteControlClientCompat {
           mPutLongMethod = metadataEditorClass.getMethod("putLong",
               int.class, long.class);
           mClearMethod = metadataEditorClass
-              .getMethod("clear", new Class[]{});
+              .getMethod("clear");
           mApplyMethod = metadataEditorClass
-              .getMethod("apply", new Class[]{});
+              .getMethod("apply");
         } catch (Exception e) {
           throw new RuntimeException(e.getMessage(), e);
         }
@@ -201,18 +205,11 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
      *
      *          {@link android.media.MediaMetadataRetriever#METADATA_KEY_ALBUM},
-     *              <p>
-     *              <p>
-     *              <p>
      *              <p>
      *              <p>
      *              <p>
@@ -238,19 +235,11 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
      *
      *          {@link android.media.MediaMetadataRetriever#METADATA_KEY_TITLE},
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *              <p>
      *              <p>
      *              <p>
@@ -267,19 +256,12 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
      *
      *
      *         {@link android.media.MediaMetadataRetriever#METADATA_KEY_AUTHOR},
-     *              <p>
-     *              <p>
-     *              <p>
      *              <p>
      *              <p>
      *              <p>
@@ -308,10 +290,6 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
@@ -323,18 +301,10 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
      *           {@link android.media.MediaMetadataRetriever#METADATA_KEY_DATE},
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *              <p>
      *              <p>
      *              <p>
@@ -348,19 +318,11 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
      *
      *          {@link android.media.MediaMetadataRetriever#METADATA_KEY_TITLE},
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *              <p>
      *              <p>
      *              <p>
@@ -397,7 +359,6 @@ public class RemoteControlClientCompat {
      * @param bitmap The bitmap for the artwork, or null if there isn't any.
      * @return Returns a reference to the same MetadataEditor object, so
      * you can chain put calls together.
-     * @throws IllegalArgumentException
      * @see android.graphics.Bitmap
      */
     public MetadataEditorCompat putBitmap(int key, Bitmap bitmap) {
@@ -474,10 +435,6 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
@@ -489,10 +446,6 @@ public class RemoteControlClientCompat {
      *              <p>
      *              <p>
      *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
-     *              <p>
      *
      *
      *
@@ -500,7 +453,6 @@ public class RemoteControlClientCompat {
      * @param value The long value for the given key
      * @return Returns a reference to the same MetadataEditor object, so
      * you can chain put calls together.
-     * @throws IllegalArgumentException
      */
     public MetadataEditorCompat putLong(int key, long value) {
       if (sHasRemoteControlAPIs) {

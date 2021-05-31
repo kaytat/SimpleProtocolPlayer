@@ -39,7 +39,7 @@ import java.util.ArrayList;
 public class MusicService extends Service implements MusicFocusable {
 
   // The tag we put on debug messages
-  final static String TAG = "SimpleProtocol";
+  static final String TAG = "SimpleProtocol";
 
   static final int DEFAULT_AUDIO_PORT = 12345;
   static final int DEFAULT_SAMPLE_RATE = 44100;
@@ -68,8 +68,8 @@ public class MusicService extends Service implements MusicFocusable {
   // are allowed to reduce the volume instead of stopping playback.
   public static final float DUCK_VOLUME = 0.1f;
 
-  private ArrayList<WorkerThreadPair> workers =
-      new ArrayList<WorkerThreadPair>();
+  private final ArrayList<WorkerThreadPair> workers =
+      new ArrayList<>();
 
   // our AudioFocusHelper object, if it's available (it's available on SDK
   // level >= 8) If not available, this will be null. Always check for null
@@ -115,18 +115,12 @@ public class MusicService extends Service implements MusicFocusable {
     // creates it)
     mWifiLock = ((WifiManager)
         getApplicationContext().getSystemService(Context.WIFI_SERVICE))
-        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+        .createWifiLock(WifiManager.WIFI_MODE_FULL, "myLock");
 
     // create the Audio Focus Helper, if the Audio Focus feature is
     // available (SDK 8 or above)
-    if (android.os.Build.VERSION.SDK_INT >= 8) {
-      mAudioFocusHelper =
-          new AudioFocusHelper(getApplicationContext(), this);
-    } else {
-      mAudioFocus =
-          AudioFocus.Focused; // no focus feature, so we always
-      // "have" audio focus
-    }
+    mAudioFocusHelper =
+        new AudioFocusHelper(getApplicationContext(), this);
   }
 
   /**
@@ -299,10 +293,10 @@ public class MusicService extends Service implements MusicFocusable {
     // Create the NotificationChannel, but only on API 26+ because
     // the NotificationChannel class is new and not in the support library
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      CharSequence name = NOTIFICATION_CHANNEL_ID;
       int importance = NotificationManager.IMPORTANCE_DEFAULT;
       NotificationChannel channel =
-          new NotificationChannel(NOTIFICATION_CHANNEL_ID, name,
+          new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+              NOTIFICATION_CHANNEL_ID,
               importance);
       channel.setSound(null, null);
       // Register the channel with the system; you can't change the

@@ -26,11 +26,11 @@ public class MediaButtonHelper {
       sMethodRegisterMediaButtonEventReceiver =
           AudioManager.class.getMethod(
               "registerMediaButtonEventReceiver",
-              new Class[]{ComponentName.class});
+              ComponentName.class);
       sMethodUnregisterMediaButtonEventReceiver =
           AudioManager.class.getMethod(
               "unregisterMediaButtonEventReceiver",
-              new Class[]{ComponentName.class});
+              ComponentName.class);
     } catch (NoSuchMethodException e) {
       // Silently fail when running on an OS before API level 8.
     }
