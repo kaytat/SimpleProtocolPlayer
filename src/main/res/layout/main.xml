@@ -15,7 +15,8 @@
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="match_parent"
+  xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -221,24 +222,25 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
-      android:orientation="horizontal"
-      style="?android:attr/buttonBarStyle" >
+      android:orientation="horizontal">
 
-      <Button
+      <com.google.android.material.button.MaterialButton
         android:id="@+id/playButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"
         android:background="@drawable/btn_play"
-        style="?android:attr/buttonBarButtonStyle" />
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@null" />
 
-      <Button
+      <com.google.android.material.button.MaterialButton
         android:id="@+id/stopButton"
         android:layout_width="64dp"
         android:layout_height="64dp"
         android:layout_margin="5dp"
         android:background="@drawable/btn_stop"
-        style="?android:attr/buttonBarButtonStyle" />
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@null" />
 
     </LinearLayout>
 
