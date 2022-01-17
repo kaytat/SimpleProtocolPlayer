@@ -275,9 +275,13 @@ public class MusicService extends Service implements MusicFocusable {
   void setUpAsForeground(String text) {
     createNotificationChannel();
 
+    int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      flags |= PendingIntent.FLAG_IMMUTABLE;
+    }
     PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
         new Intent(getApplicationContext(), MainActivity.class),
-        PendingIntent.FLAG_UPDATE_CURRENT);
+        flags);
 
     mNotification =
         new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
