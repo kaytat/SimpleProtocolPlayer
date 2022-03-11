@@ -110,7 +110,7 @@ class NetworkReadThread extends ThreadStoppable {
 
       try {
         //noinspection BusyWait
-        Thread.sleep(RETRY_PARAMS[retryParamIndex][0] * 1000);
+        Thread.sleep((long)RETRY_PARAMS[retryParamIndex][0] * 1000);
       } catch (Exception e) {
         // Ignore.
       }

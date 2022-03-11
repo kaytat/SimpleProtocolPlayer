@@ -33,7 +33,6 @@
     <activity
       android:name="com.kaytat.simpleprotocolplayer.MainActivity"
       android:exported="true"
-      android:label="@string/app_title"
       android:theme="@style/theme_light">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
