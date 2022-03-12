@@ -26,6 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -74,6 +78,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   Button mPlayButton;
   Button mStopButton;
+
+  private enum NetworkConnection {
+    NOT_CONNECTED,
+    WIFI_CONNECTED,
+    NON_WIFI_CONNECTED
+  }
 
   /**
    * Called when the activity is first created. Here, we simply set the
@@ -367,6 +377,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     // Send the correct intent to the MusicService, according to the
     // button that was clicked
     if (target == mPlayButton) {
+      switch (getNetworkConnection()) {
+      case NOT_CONNECTED:
+        Toast.makeText(getApplicationContext(), "No network connectivity.",
+            Toast.LENGTH_SHORT).show();
+        return;
+      case NON_WIFI_CONNECTED:
+        Toast.makeText(getApplicationContext(), "WARNING: wifi not connected.",
+            Toast.LENGTH_SHORT).show();
+        break;
+      default:
+        break;
+      }
+
       hideKb();
 
       // Get the IP address and port and put it in the intent
@@ -471,5 +494,43 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   private boolean isEmpty(EditText etText) {
     return etText.getText().toString().trim().length() == 0;
+  }
+
+  private NetworkConnection getNetworkConnection() {
+    ConnectivityManager connectivityManager =
+        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    if (connectivityManager == null) {
+      return NetworkConnection.NOT_CONNECTED;
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      NetworkCapabilities capabilities = connectivityManager
+          .getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      if (capabilities == null) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (!capabilities
+          .hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+        return NetworkConnection.WIFI_CONNECTED;
+      } else {
+        return NetworkConnection.NON_WIFI_CONNECTED;
+      }
+    } else {
+      NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+      if (networkInfo == null) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (!networkInfo.isConnected()) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+        return NetworkConnection.WIFI_CONNECTED;
+      } else {
+        return NetworkConnection.NON_WIFI_CONNECTED;
+      }
+    }
   }
 }
