@@ -48,6 +48,8 @@ import android.widget.Filter;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import org.apache.commons.validator.routines.DomainValidator;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -397,11 +399,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       i.setPackage(getPackageName());
       String ipAddr = mIPAddrText.getText().toString();
       String portStr = mAudioPortText.getText().toString();
-      if (ipAddr.equals("")) {
+.
+      // Check address string against domain, IPv4, and IPv6
+      DomainValidator domainValidator = DomainValidator.getInstance();
+      InetAddressValidator inetAddressValidator =
+          InetAddressValidator.getInstance();
+      if (!domainValidator.isValid(ipAddr) &&
+          !inetAddressValidator.isValidInet4Address(ipAddr) &&
+          !inetAddressValidator.isValidInet6Address(ipAddr)) {
         Toast.makeText(getApplicationContext(), "Invalid address",
             Toast.LENGTH_SHORT).show();
         return;
       }
+
       if (portStr.equals("")) {
         Toast.makeText(getApplicationContext(), "Invalid port",
             Toast.LENGTH_SHORT).show();
