@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       i.setPackage(getPackageName());
       String ipAddr = mIPAddrText.getText().toString();
       String portStr = mAudioPortText.getText().toString();
-.
+
       // Check address string against domain, IPv4, and IPv6
       DomainValidator domainValidator = DomainValidator.getInstance();
       InetAddressValidator inetAddressValidator =
