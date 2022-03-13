@@ -65,8 +65,12 @@ public class WorkerThreadPair {
             AudioFormat.ENCODING_PCM_16BIT);
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
-    bytesPerAudioPacket =
-        calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
+    if (true) {
+      bytesPerAudioPacket = calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
+    } else {
+      bytesPerAudioPacket =
+          calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
+    }
 
     // The agreement here is that audioTrack will be shutdown by the helper
     audioTrack =
@@ -124,14 +128,31 @@ public class WorkerThreadPair {
 
     int result = (bytesPerSecond * requestedBufferMs) / 1000;
 
-    if ((result & 1) != 0) {
-      result++;
+    if (stereo) {
+      result = (result + 3) & ~0x3;
+    } else {
+      result = (result + 1) & ~0x1;
     }
 
     Log.d(TAG, "calcBytesPerAudioPacket:bytes / second:" + bytesPerSecond);
     Log.d(TAG, "calcBytesPerAudioPacket:" + result);
 
     return result;
+  }
+
+  static int calcMinBytesPerAudioPacket(boolean stereo, int audioTrackMinBuffer) {
+    int bytesPerAudioPacket;
+
+    if (stereo) {
+      bytesPerAudioPacket = (audioTrackMinBuffer + 3) & ~0x3;
+    } else {
+      bytesPerAudioPacket = (audioTrackMinBuffer + 1) & ~0x1;
+    }
+
+    Log.d(TAG, "calcMinBytesPerAudioPacket:audioTrackMinBuffer:" + audioTrackMinBuffer);
+    Log.d(TAG, "calcMinBytesPerAudioPacket:" + bytesPerAudioPacket);
+
+    return bytesPerAudioPacket;
   }
 
   static public final int NUM_PACKETS = 3;
