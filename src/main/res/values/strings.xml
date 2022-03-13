@@ -17,8 +17,8 @@
 <resources>
 
   <string name="app_title">Simple Protocol Player</string>
-  <string name="labelIpAddr">IP Address</string>
-  <string name="hintIpAddr">IP Address</string>
+  <string name="labelIpAddr">IP Address / Hostname</string>
+  <string name="hintIpAddr">IP Address / Hostname</string>
   <string name="labelAudioPort">Audio Port</string>
   <string name="hintAudioPort">Audio Port</string>
   <string name="defaultAudioPort">12345</string>
