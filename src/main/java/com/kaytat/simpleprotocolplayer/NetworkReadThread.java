@@ -66,7 +66,7 @@ class NetworkReadThread extends ThreadStoppable {
     bufferIndex = 0;
     dataBuffer = new byte[numBuffers][];
     for (int i = 0; i < numBuffers; i++) {
-      dataBuffer[i] = new byte[syncObject.packet_size];
+      dataBuffer[i] = new byte[syncObject.bytesPerAudioPacket];
     }
   }
 
@@ -150,7 +150,7 @@ class NetworkReadThread extends ThreadStoppable {
           // will be used as next read buffer, should not update
           // Filled up. Throw away everything that's in the network
           // queue.
-          Log.w(TAG, "drop " + syncObject.packet_size + " bytes");
+          Log.w(TAG, "drop " + syncObject.bytesPerAudioPacket + " bytes");
           continue;
         }
         bufferIndex = (bufferIndex + 1) % numBuffers;

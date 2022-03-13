@@ -26,7 +26,7 @@ import android.widget.Toast;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * group everything belongs a stream together,makes multi stream easier
+ * group everything belongs a stream together, makes multi stream easier
  * including NetworkReadThread BufferToAudioTrackThread and AudioTrack
  */
 public class WorkerThreadPair {
@@ -35,37 +35,40 @@ public class WorkerThreadPair {
 
   private final BufferToAudioTrackThread audioThread;
   private final NetworkReadThread networkThread;
-  final AudioTrack mTrack;
+  final AudioTrack audioTrack;
 
   public WorkerThreadPair(
       MusicService musicService,
       String serverAddr,
       int serverPort,
-      int sample_rate,
+      int sampleRate,
       boolean stereo,
-      int buffer_ms,
+      int requestedBufferMs,
       boolean retry) {
     this.musicService = musicService;
     int format = stereo ? AudioFormat.CHANNEL_OUT_STEREO
         : AudioFormat.CHANNEL_OUT_MONO;
 
     // Sanitize input, just in case
-    if (sample_rate <= 0) {
-      sample_rate = MusicService.DEFAULT_SAMPLE_RATE;
+    if (sampleRate <= 0) {
+      sampleRate = MusicService.DEFAULT_SAMPLE_RATE;
     }
 
-    if (buffer_ms <= 5) {
-      buffer_ms = MusicService.DEFAULT_BUFFER_MS;
+    if (requestedBufferMs <= 5) {
+      requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
     }
 
-    int minBuf = AudioTrack.getMinBufferSize(sample_rate, format,
+    int audioTrackMinBuffer = AudioTrack.getMinBufferSize(sampleRate, format,
         AudioFormat.ENCODING_PCM_16BIT);
+    Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
-    packet_size = calcPacketSize(sample_rate, stereo, minBuf, buffer_ms);
+    bytesPerAudioPacket =
+        calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
 
-    // The agreement here is that mTrack will be shutdown by the helper
-    mTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, format,
-        AudioFormat.ENCODING_PCM_16BIT, minBuf, AudioTrack.MODE_STREAM);
+    // The agreement here is that audioTrack will be shutdown by the helper
+    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, format,
+        AudioFormat.ENCODING_PCM_16BIT, audioTrackMinBuffer,
+        AudioTrack.MODE_STREAM);
 
     audioThread = new BufferToAudioTrackThread(this, "audio:"
         + serverAddr + ":" + serverPort);
@@ -77,24 +80,23 @@ public class WorkerThreadPair {
     networkThread.start();
   }
 
-  static int calcPacketSize(int sample_rate, boolean stereo, int minBuf,
-      int buffer_ms) {
+  static int calcBytesPerAudioPacket(int sampleRate, boolean stereo,
+      int requestedBufferMs) {
 
     // Assume 16 bits per sample
-    int bytesPerSecond = sample_rate * 2;
+    int bytesPerSecond = sampleRate * 2;
     if (stereo) {
       bytesPerSecond *= 2;
     }
 
-    int result = (bytesPerSecond * buffer_ms) / 1000;
+    int result = (bytesPerSecond * requestedBufferMs) / 1000;
 
     if ((result & 1) != 0) {
       result++;
     }
 
-    Log.d(TAG, "initNetworkData:bytes / second:" + (bytesPerSecond));
-    Log.d(TAG, "initNetworkData:minBuf:" + minBuf);
-    Log.d(TAG, "initNetworkData:packet_size:" + result);
+    Log.d(TAG, "calcBytesPerAudioPacket:bytes / second:" + bytesPerSecond);
+    Log.d(TAG, "calcBytesPerAudioPacket:" + result);
 
     return result;
   }
@@ -102,7 +104,7 @@ public class WorkerThreadPair {
   static public final int NUM_PACKETS = 3;
 
   // The amount of data to read from the network before sending to AudioTrack
-  final int packet_size;
+  final int bytesPerAudioPacket;
 
   final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(
       NUM_PACKETS);

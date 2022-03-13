@@ -32,7 +32,7 @@ class BufferToAudioTrackThread extends ThreadStoppable {
       String debugTag) {
     this.setName(debugTag);
     TAG = debugTag;
-    this.mTrack = syncObject.mTrack;
+    this.mTrack = syncObject.audioTrack;
     this.syncObject = syncObject;
   }
 
@@ -48,7 +48,7 @@ class BufferToAudioTrackThread extends ThreadStoppable {
     try {
       while (running) {
         mTrack.write(syncObject.dataQueue.take(), 0,
-            syncObject.packet_size);
+            syncObject.bytesPerAudioPacket);
       }
     } catch (Exception e) {
       Log.e(TAG, "exception:" + e);

@@ -232,11 +232,11 @@ public class MusicService extends Service implements MusicFocusable {
 
     for (WorkerThreadPair it : workers) {
       if (mAudioFocus == AudioFocus.NoFocusCanDuck) {
-        it.mTrack.setStereoVolume(DUCK_VOLUME, DUCK_VOLUME); // we'll be
+        it.audioTrack.setStereoVolume(DUCK_VOLUME, DUCK_VOLUME); // we'll be
         // relatively
         // quiet
       } else {
-        it.mTrack.setStereoVolume(1.0f, 1.0f); // we can be loud
+        it.audioTrack.setStereoVolume(1.0f, 1.0f); // we can be loud
       }
     }
   }
