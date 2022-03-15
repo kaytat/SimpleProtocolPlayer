@@ -418,15 +418,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
       String rateStr = String.valueOf(sampleRateSpinner.getSelectedItem());
       String[] rateSplit = rateStr.split(" ");
-      if (rateSplit.length != 0) {
-        try {
-          sampleRate = Integer.parseInt(rateSplit[0]);
-          Log.i(TAG, "rate:" + sampleRate);
-          i.putExtra(MusicService.DATA_SAMPLE_RATE, sampleRate);
-        } catch (NumberFormatException nfe) {
-          // Ignore the error
-          Log.i(TAG, "invalid sample rate:" + nfe);
-        }
+      try {
+        sampleRate = Integer.parseInt(rateSplit[0]);
+        Log.i(TAG, "rate:" + sampleRate);
+        i.putExtra(MusicService.DATA_SAMPLE_RATE, sampleRate);
+      } catch (NumberFormatException nfe) {
+        Log.e(TAG, "Invalid rate:" + nfe);
+        Toast.makeText(getApplicationContext(), "Invalid rate",
+            Toast.LENGTH_SHORT).show();
+        return;
       }
 
       // Extract stereo/mono setting
@@ -441,15 +441,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       // Get the latest buffer entry
       EditText e = findViewById(R.id.editTextBufferSize);
       String bufferMsString = e.getText().toString();
-      if (bufferMsString.length() != 0) {
-        try {
-          bufferMs = Integer.parseInt(bufferMsString);
-          Log.d(TAG, "buffer ms:" + bufferMs);
-          i.putExtra(MusicService.DATA_BUFFER_MS, bufferMs);
-        } catch (NumberFormatException nfe) {
-          // Ignore the error
-          Log.i(TAG, "invalid buffer size:" + nfe);
-        }
+      try {
+        bufferMs = Integer.parseInt(bufferMsString);
+        Log.d(TAG, "buffer ms:" + bufferMs);
+        i.putExtra(MusicService.DATA_BUFFER_MS, bufferMs);
+      } catch (NumberFormatException nfe) {
+        Log.e(TAG, "Invalid buffer ms:" + nfe);
+        Toast.makeText(getApplicationContext(), "Invalid buffer ms",
+            Toast.LENGTH_SHORT).show();
+        return;
       }
 
       // Get the retry checkbox
