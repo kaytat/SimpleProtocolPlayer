@@ -236,12 +236,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     audioPortAdapter.notifyDataSetChanged();
   }
 
-  @Override
-  public void onPause() {
-    super.onPause();
-    savePrefs();
-  }
-
   private static class NoFilterArrayAdapter<T> extends ArrayAdapter<T> {
     private final Filter filter = new NoFilter();
     public final List<T> items;
