@@ -387,12 +387,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             Toast.LENGTH_SHORT).show();
         return;
       }
-
-      if (portStr.equals("")) {
-        Toast.makeText(getApplicationContext(), "Invalid port",
-            Toast.LENGTH_SHORT).show();
-        return;
-      }
       Log.d(TAG, "ip:" + ipAddr);
       i.putExtra(MusicService.DATA_IP_ADDRESS, ipAddr);
 
