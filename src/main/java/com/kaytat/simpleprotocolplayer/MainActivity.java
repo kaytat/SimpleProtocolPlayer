@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   boolean stereo;
   int bufferMs;
   boolean retry;
+  boolean usePerformanceMode;
+  boolean useMinBuffer;
 
   Button playButton;
   Button stopButton;
@@ -146,6 +148,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String STEREO_PREF = "STEREO";
   static final String BUFFER_MS_PREF = "BUFFER_MS";
   static final String RETRY_PREF = "RETRY";
+  static final String USE_PERFORMANCE_MODE_PREF = "USE_PERFORMANCE_MODE";
+  static final String USE_MIN_BUFFER_PREF = "USE_MIN_BUFFER";
 
   ArrayList<String> getListFromPrefs(SharedPreferences prefs, String keyJson,
       String keySingle) {
@@ -225,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     prefsEditor.putInt(RATE_PREF, sampleRate);
     prefsEditor.putInt(BUFFER_MS_PREF, bufferMs);
     prefsEditor.putBoolean(RETRY_PREF, retry);
+    prefsEditor.putBoolean(USE_PERFORMANCE_MODE_PREF, usePerformanceMode);
+    prefsEditor.putBoolean(USE_MIN_BUFFER_PREF, useMinBuffer);
     prefsEditor.apply();
 
     // Update adapters
@@ -330,7 +336,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     e.setText(String.format(Locale.getDefault(), "%d", bufferMs));
 
     retry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
+    ((CheckBox) findViewById(R.id.checkBoxRetry)).setChecked(retry);
     Log.d(TAG, "retry:" + retry);
+
+    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
+    ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(usePerformanceMode);
+    Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
+
+    useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF, MusicService.DEFAULT_USE_MIN_BUFFER);
+    ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(useMinBuffer);
+    Log.d(TAG, "useMinBuffer:" + useMinBuffer);
   }
 
   @Override
@@ -444,6 +459,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       retry = ((CheckBox) findViewById(R.id.checkBoxRetry)).isChecked();
       Log.d(TAG, "retry:" + retry);
       i.putExtra(MusicService.DATA_RETRY, retry);
+
+      // Get the usePerformanceMode checkbox
+      usePerformanceMode = ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).isChecked();
+      Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
+      i.putExtra(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
+
+      // Get the useMinBuffer checkbox
+      useMinBuffer = ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).isChecked();
+      Log.d(TAG, "useMinBuffer:" + useMinBuffer);
+      i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 
       // Save current settings
       savePrefs();

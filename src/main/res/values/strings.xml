@@ -43,5 +43,7 @@
   <string name="bufferSize">Buffer size (in ms)</string>
   <string name="bufferSizeHint">Buffer size</string>
   <string name="retry">Enable network retries</string>
+  <string name="usePerformanceMode">Performance mode</string>
+  <string name="useMinBuffer">Min AudioTrack buffer</string>
   <string name="error">Error</string>
 </resources>

@@ -46,7 +46,9 @@ public class WorkerThreadPair {
       int sampleRate,
       boolean stereo,
       int requestedBufferMs,
-      boolean retry) {
+      boolean retry,
+      boolean usePerformanceMode,
+      boolean useMinBuffer) {
     this.musicService = musicService;
     int channelMask = stereo ? AudioFormat.CHANNEL_OUT_STEREO
         : AudioFormat.CHANNEL_OUT_MONO;
@@ -56,25 +58,26 @@ public class WorkerThreadPair {
       sampleRate = MusicService.DEFAULT_SAMPLE_RATE;
     }
 
-    if (requestedBufferMs <= 5) {
-      requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
-    }
-
     int audioTrackMinBuffer =
         AudioTrack.getMinBufferSize(sampleRate, channelMask,
             AudioFormat.ENCODING_PCM_16BIT);
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
-    if (true) {
+    if (useMinBuffer) {
       bytesPerAudioPacket = calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
     } else {
+      if (requestedBufferMs <= 5) {
+        requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
+      }
       bytesPerAudioPacket =
           calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
     }
+    Log.d(TAG, "useMinBuffer:" + useMinBuffer);
 
     // The agreement here is that audioTrack will be shutdown by the helper
     audioTrack =
-        buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer, true);
+        buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer, usePerformanceMode);
+    Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
     audioThread = new BufferToAudioTrackThread(this, "audio:"
         + serverAddr + ":" + serverPort);
