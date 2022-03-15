@@ -39,32 +39,26 @@ public class WorkerThreadPair {
   private final NetworkReadThread networkThread;
   final AudioTrack audioTrack;
 
-  public WorkerThreadPair(
-      MusicService musicService,
-      String serverAddr,
-      int serverPort,
-      int sampleRate,
-      boolean stereo,
-      int requestedBufferMs,
-      boolean retry,
-      boolean usePerformanceMode,
-      boolean useMinBuffer) {
+  public WorkerThreadPair(MusicService musicService, String serverAddr,
+      int serverPort, int sampleRate, boolean stereo, int requestedBufferMs,
+      boolean retry, boolean usePerformanceMode, boolean useMinBuffer) {
     this.musicService = musicService;
-    int channelMask = stereo ? AudioFormat.CHANNEL_OUT_STEREO
-        : AudioFormat.CHANNEL_OUT_MONO;
+    int channelMask =
+        stereo ? AudioFormat.CHANNEL_OUT_STEREO : AudioFormat.CHANNEL_OUT_MONO;
 
     // Sanitize input, just in case
     if (sampleRate <= 0) {
       sampleRate = MusicService.DEFAULT_SAMPLE_RATE;
     }
 
-    int audioTrackMinBuffer =
-        AudioTrack.getMinBufferSize(sampleRate, channelMask,
+    int audioTrackMinBuffer = AudioTrack
+        .getMinBufferSize(sampleRate, channelMask,
             AudioFormat.ENCODING_PCM_16BIT);
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
     if (useMinBuffer) {
-      bytesPerAudioPacket = calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
+      bytesPerAudioPacket =
+          calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
     } else {
       if (requestedBufferMs <= 5) {
         requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
@@ -75,15 +69,14 @@ public class WorkerThreadPair {
     Log.d(TAG, "useMinBuffer:" + useMinBuffer);
 
     // The agreement here is that audioTrack will be shutdown by the helper
-    audioTrack =
-        buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer, usePerformanceMode);
+    audioTrack = buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer,
+        usePerformanceMode);
     Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
-    audioThread = new BufferToAudioTrackThread(this, "audio:"
-        + serverAddr + ":" + serverPort);
-    networkThread =
-        new NetworkReadThread(this, serverAddr, serverPort, retry,
-            "net:" + serverAddr + ":" + serverPort);
+    audioThread = new BufferToAudioTrackThread(this,
+        "audio:" + serverAddr + ":" + serverPort);
+    networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
+        "net:" + serverAddr + ":" + serverPort);
 
     audioThread.start();
     networkThread.start();
@@ -143,7 +136,8 @@ public class WorkerThreadPair {
     return result;
   }
 
-  static int calcMinBytesPerAudioPacket(boolean stereo, int audioTrackMinBuffer) {
+  static int calcMinBytesPerAudioPacket(boolean stereo,
+      int audioTrackMinBuffer) {
     int bytesPerAudioPacket;
 
     if (stereo) {
@@ -152,7 +146,8 @@ public class WorkerThreadPair {
       bytesPerAudioPacket = (audioTrackMinBuffer + 1) & ~0x1;
     }
 
-    Log.d(TAG, "calcMinBytesPerAudioPacket:audioTrackMinBuffer:" + audioTrackMinBuffer);
+    Log.d(TAG, "calcMinBytesPerAudioPacket:audioTrackMinBuffer:" +
+        audioTrackMinBuffer);
     Log.d(TAG, "calcMinBytesPerAudioPacket:" + bytesPerAudioPacket);
 
     return bytesPerAudioPacket;
@@ -163,8 +158,8 @@ public class WorkerThreadPair {
   // The amount of data to read from the network before sending to AudioTrack
   final int bytesPerAudioPacket;
 
-  final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(
-      NUM_PACKETS);
+  final ArrayBlockingQueue<byte[]> dataQueue =
+      new ArrayBlockingQueue<>(NUM_PACKETS);
 
   public void stopAndInterrupt() {
     for (ThreadStoppable it : new ThreadStoppable[]{audioThread,
