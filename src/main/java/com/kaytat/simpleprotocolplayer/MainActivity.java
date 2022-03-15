@@ -89,8 +89,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   /**
    * Called when the activity is first created. Here, we simply set the
-   * event listeners and start the background service ({@link MusicService}
-   * ) that will handle the actual media playback.
+   * event listeners and start the background service ({@link MusicService})
+   * that will handle the actual media playback.
    */
   @SuppressLint("ClickableViewAccessibility")
   @Override
@@ -99,8 +99,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     setContentView(R.layout.main);
 
     ipAddrText = findViewById(R.id.editTextIpAddr);
-    audioPortText =
-        findViewById(R.id.editTextAudioPort);
+    audioPortText = findViewById(R.id.editTextAudioPort);
 
     playButton = findViewById(R.id.playButton);
     stopButton = findViewById(R.id.stopButton);
@@ -132,10 +131,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         });
   }
 
-  /*
-      The two different approaches here is an attempt to support both an
-      old preferences and new preferences.  The newer version saved to JSON
-      while the old version just saved one string.
+  /**
+   * The two different approaches here is an attempt to support both an old
+   * preferences and new preferences.  The newer version saved to JSON while
+   * the old version just saved one string.
    */
   static final String IP_PREF = "IP_PREF";
   static final String PORT_PREF = "PORT_PREF";
@@ -148,9 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String BUFFER_MS_PREF = "BUFFER_MS";
   static final String RETRY_PREF = "RETRY";
 
-  ArrayList<String> getListFromPrefs(
-      SharedPreferences prefs,
-      String keyJson,
+  ArrayList<String> getListFromPrefs(SharedPreferences prefs, String keyJson,
       String keySingle) {
     // Retrieve the values from the shared preferences
     String jsonString = prefs.getString(keyJson, null);
@@ -183,16 +180,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     return arrayList;
   }
 
-  private ArrayList<String> getUpdatedArrayList(
-      SharedPreferences prefs,
-      AutoCompleteTextView view,
-      String keyJson,
-      String keySingle) {
+  private ArrayList<String> getUpdatedArrayList(SharedPreferences prefs,
+      AutoCompleteTextView view, String keyJson, String keySingle) {
     // Retrieve the values from the shared preferences
-    ArrayList<String> arrayList = getListFromPrefs(
-        prefs,
-        keyJson,
-        keySingle);
+    ArrayList<String> arrayList = getListFromPrefs(prefs, keyJson, keySingle);
 
     // Make sure the most recent IP is on top
     arrayList.remove(view.getText().toString());
@@ -218,20 +209,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   private void savePrefs() {
-    SharedPreferences myPrefs =
-        this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
     SharedPreferences.Editor prefsEditor = myPrefs.edit();
 
-    ipAddrList = getUpdatedArrayList(myPrefs, ipAddrText, IP_JSON_PREF,
-        IP_PREF);
+    ipAddrList =
+        getUpdatedArrayList(myPrefs, ipAddrText, IP_JSON_PREF, IP_PREF);
     audioPortList =
-        getUpdatedArrayList(myPrefs, audioPortText, PORT_JSON_PREF,
-            PORT_PREF);
+        getUpdatedArrayList(myPrefs, audioPortText, PORT_JSON_PREF, PORT_PREF);
 
     // Write out JSON object
     prefsEditor.putString(IP_JSON_PREF, getJson(ipAddrList).toString());
-    prefsEditor
-        .putString(PORT_JSON_PREF, getJson(audioPortList).toString());
+    prefsEditor.putString(PORT_JSON_PREF, getJson(audioPortList).toString());
 
     prefsEditor.putBoolean(STEREO_PREF, stereo);
     prefsEditor.putInt(RATE_PREF, sampleRate);
@@ -254,8 +242,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     savePrefs();
   }
 
-  private static class NoFilterArrayAdapter<T>
-      extends ArrayAdapter<T> {
+  private static class NoFilterArrayAdapter<T> extends ArrayAdapter<T> {
     private final Filter filter = new NoFilter();
     public final List<T> items;
 
@@ -274,10 +261,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     private class NoFilter extends Filter {
 
       @Override
-      protected android.widget.Filter.FilterResults performFiltering(
-          CharSequence arg0) {
-        android.widget.Filter.FilterResults result =
-            new android.widget.Filter.FilterResults();
+      protected Filter.FilterResults performFiltering(CharSequence arg0) {
+        Filter.FilterResults result = new Filter.FilterResults();
         result.values = items;
         result.count = items.size();
         return result;
@@ -285,7 +270,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
       @Override
       protected void publishResults(CharSequence arg0,
-          android.widget.Filter.FilterResults arg1) {
+          Filter.FilterResults arg1) {
         notifyDataSetChanged();
       }
     }
@@ -294,12 +279,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   @Override
   public void onResume() {
     super.onResume();
-    SharedPreferences myPrefs =
-        this.getSharedPreferences("myPrefs", MODE_PRIVATE);
+    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
 
     ipAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
-    ipAddrAdapter = new NoFilterArrayAdapter<>(this,
-        android.R.layout.simple_list_item_1, ipAddrList);
+    ipAddrAdapter =
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            ipAddrList);
     ipAddrText.setAdapter(ipAddrAdapter);
     ipAddrText.setThreshold(1);
     if (ipAddrList.size() != 0) {
@@ -307,31 +292,29 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     if (!isEmpty(ipAddrText)) {
-      this.getWindow().setSoftInputMode(
+      getWindow().setSoftInputMode(
           WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     audioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
-    audioPortAdapter = new NoFilterArrayAdapter<>(this,
-        android.R.layout.simple_list_item_1, audioPortList);
+    audioPortAdapter =
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            audioPortList);
     audioPortText.setAdapter(audioPortAdapter);
     audioPortText.setThreshold(1);
     if (audioPortList.size() != 0) {
       audioPortText.setText(audioPortList.get(0));
     }
 
-    // These hard-coded values should match the defaults in the strings
-    // array
+    // These hard-coded values should match the defaults in the strings array
     Resources res = getResources();
 
-    sampleRate =
-        myPrefs.getInt(RATE_PREF, MusicService.DEFAULT_SAMPLE_RATE);
+    sampleRate = myPrefs.getInt(RATE_PREF, MusicService.DEFAULT_SAMPLE_RATE);
     String rateString = Integer.toString(sampleRate);
     String[] sampleRateStrings = res.getStringArray(R.array.sampleRates);
     for (int i = 0; i < sampleRateStrings.length; i++) {
       if (sampleRateStrings[i].contains(rateString)) {
-        Spinner sampleRateSpinner =
-            findViewById(R.id.spinnerSampleRate);
+        Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
         sampleRateSpinner.setSelection(i);
         break;
       }
@@ -347,8 +330,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       stereoSpinner.setSelection(1);
     }
 
-    bufferMs =
-        myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
+    bufferMs = myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
     Log.d(TAG, "bufferMs:" + bufferMs);
     EditText e = findViewById(R.id.editTextBufferSize);
     e.setText(String.format(Locale.getDefault(), "%d", bufferMs));
@@ -433,10 +415,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       i.putExtra(MusicService.DATA_AUDIO_PORT, audioPort);
 
       // Extract sample rate
-      Spinner sampleRateSpinner =
-          findViewById(R.id.spinnerSampleRate);
-      String rateStr =
-          String.valueOf(sampleRateSpinner.getSelectedItem());
+      Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
+      String rateStr = String.valueOf(sampleRateSpinner.getSelectedItem());
       String[] rateSplit = rateStr.split(" ");
       if (rateSplit.length != 0) {
         try {
@@ -491,8 +471,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   private void hideKb() {
     InputMethodManager inputManager =
-        (InputMethodManager) this
-            .getSystemService(Context.INPUT_METHOD_SERVICE);
+        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
     View v = getCurrentFocus();
     if (v != null) {
