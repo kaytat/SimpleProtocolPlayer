@@ -65,21 +65,21 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final String TAG = "MainActivity";
 
-  AutoCompleteTextView mIPAddrText;
-  ArrayList<String> mIPAddrList;
-  ArrayAdapter<String> mIPAddrAdapter;
+  AutoCompleteTextView ipAddrText;
+  ArrayList<String> ipAddrList;
+  ArrayAdapter<String> ipAddrAdapter;
 
-  AutoCompleteTextView mAudioPortText;
-  ArrayList<String> mAudioPortList;
-  ArrayAdapter<String> mAudioPortAdapter;
+  AutoCompleteTextView audioPortText;
+  ArrayList<String> audioPortList;
+  ArrayAdapter<String> audioPortAdapter;
 
-  int mSampleRate;
-  boolean mStereo;
-  int mBufferMs;
-  boolean mRetry;
+  int sampleRate;
+  boolean stereo;
+  int bufferMs;
+  boolean retry;
 
-  Button mPlayButton;
-  Button mStopButton;
+  Button playButton;
+  Button stopButton;
 
   private enum NetworkConnection {
     NOT_CONNECTED,
@@ -98,35 +98,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    mIPAddrText = findViewById(R.id.editTextIpAddr);
-    mAudioPortText =
+    ipAddrText = findViewById(R.id.editTextIpAddr);
+    audioPortText =
         findViewById(R.id.editTextAudioPort);
 
-    mPlayButton = findViewById(R.id.playButton);
-    mStopButton = findViewById(R.id.stopButton);
+    playButton = findViewById(R.id.playButton);
+    stopButton = findViewById(R.id.stopButton);
 
-    mPlayButton.setOnClickListener(this);
-    mStopButton.setOnClickListener(this);
+    playButton.setOnClickListener(this);
+    stopButton.setOnClickListener(this);
 
     // Allow full list to be shown on first focus
-    mIPAddrText.setOnTouchListener((v, event) -> {
-      mIPAddrText.showDropDown();
+    ipAddrText.setOnTouchListener((v, event) -> {
+      ipAddrText.showDropDown();
       return false;
     });
-    mIPAddrText.setOnFocusChangeListener((v, hasFocus) -> {
-      if (hasFocus && mIPAddrText.getAdapter() != null) {
-        mIPAddrText.showDropDown();
+    ipAddrText.setOnFocusChangeListener((v, hasFocus) -> {
+      if (hasFocus && ipAddrText.getAdapter() != null) {
+        ipAddrText.showDropDown();
       }
 
     });
-    mAudioPortText.setOnTouchListener((v, event) -> {
-      mAudioPortText.showDropDown();
+    audioPortText.setOnTouchListener((v, event) -> {
+      audioPortText.showDropDown();
       return false;
     });
-    mAudioPortText
+    audioPortText
         .setOnFocusChangeListener((v, hasFocus) -> {
-          if (hasFocus && mIPAddrText.getAdapter() != null) {
-            mAudioPortText.showDropDown();
+          if (hasFocus && ipAddrText.getAdapter() != null) {
+            audioPortText.showDropDown();
           }
 
         });
@@ -222,30 +222,30 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         this.getSharedPreferences("myPrefs", MODE_PRIVATE);
     SharedPreferences.Editor prefsEditor = myPrefs.edit();
 
-    mIPAddrList = getUpdatedArrayList(myPrefs, mIPAddrText, IP_JSON_PREF,
+    ipAddrList = getUpdatedArrayList(myPrefs, ipAddrText, IP_JSON_PREF,
         IP_PREF);
-    mAudioPortList =
-        getUpdatedArrayList(myPrefs, mAudioPortText, PORT_JSON_PREF,
+    audioPortList =
+        getUpdatedArrayList(myPrefs, audioPortText, PORT_JSON_PREF,
             PORT_PREF);
 
     // Write out JSON object
-    prefsEditor.putString(IP_JSON_PREF, getJson(mIPAddrList).toString());
+    prefsEditor.putString(IP_JSON_PREF, getJson(ipAddrList).toString());
     prefsEditor
-        .putString(PORT_JSON_PREF, getJson(mAudioPortList).toString());
+        .putString(PORT_JSON_PREF, getJson(audioPortList).toString());
 
-    prefsEditor.putBoolean(STEREO_PREF, mStereo);
-    prefsEditor.putInt(RATE_PREF, mSampleRate);
-    prefsEditor.putInt(BUFFER_MS_PREF, mBufferMs);
-    prefsEditor.putBoolean(RETRY_PREF, mRetry);
+    prefsEditor.putBoolean(STEREO_PREF, stereo);
+    prefsEditor.putInt(RATE_PREF, sampleRate);
+    prefsEditor.putInt(BUFFER_MS_PREF, bufferMs);
+    prefsEditor.putBoolean(RETRY_PREF, retry);
     prefsEditor.apply();
 
     // Update adapters
-    mIPAddrAdapter.clear();
-    mIPAddrAdapter.addAll(mIPAddrList);
-    mIPAddrAdapter.notifyDataSetChanged();
-    mAudioPortAdapter.clear();
-    mAudioPortAdapter.addAll(mAudioPortList);
-    mAudioPortAdapter.notifyDataSetChanged();
+    ipAddrAdapter.clear();
+    ipAddrAdapter.addAll(ipAddrList);
+    ipAddrAdapter.notifyDataSetChanged();
+    audioPortAdapter.clear();
+    audioPortAdapter.addAll(audioPortList);
+    audioPortAdapter.notifyDataSetChanged();
   }
 
   @Override
@@ -297,36 +297,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     SharedPreferences myPrefs =
         this.getSharedPreferences("myPrefs", MODE_PRIVATE);
 
-    mIPAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
-    mIPAddrAdapter = new NoFilterArrayAdapter<>(this,
-        android.R.layout.simple_list_item_1, mIPAddrList);
-    mIPAddrText.setAdapter(mIPAddrAdapter);
-    mIPAddrText.setThreshold(1);
-    if (mIPAddrList.size() != 0) {
-      mIPAddrText.setText(mIPAddrList.get(0));
+    ipAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
+    ipAddrAdapter = new NoFilterArrayAdapter<>(this,
+        android.R.layout.simple_list_item_1, ipAddrList);
+    ipAddrText.setAdapter(ipAddrAdapter);
+    ipAddrText.setThreshold(1);
+    if (ipAddrList.size() != 0) {
+      ipAddrText.setText(ipAddrList.get(0));
     }
 
-    if (!isEmpty(mIPAddrText)) {
+    if (!isEmpty(ipAddrText)) {
       this.getWindow().setSoftInputMode(
           WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    mAudioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
-    mAudioPortAdapter = new NoFilterArrayAdapter<>(this,
-        android.R.layout.simple_list_item_1, mAudioPortList);
-    mAudioPortText.setAdapter(mAudioPortAdapter);
-    mAudioPortText.setThreshold(1);
-    if (mAudioPortList.size() != 0) {
-      mAudioPortText.setText(mAudioPortList.get(0));
+    audioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
+    audioPortAdapter = new NoFilterArrayAdapter<>(this,
+        android.R.layout.simple_list_item_1, audioPortList);
+    audioPortText.setAdapter(audioPortAdapter);
+    audioPortText.setThreshold(1);
+    if (audioPortList.size() != 0) {
+      audioPortText.setText(audioPortList.get(0));
     }
 
     // These hard-coded values should match the defaults in the strings
     // array
     Resources res = getResources();
 
-    mSampleRate =
+    sampleRate =
         myPrefs.getInt(RATE_PREF, MusicService.DEFAULT_SAMPLE_RATE);
-    String rateString = Integer.toString(mSampleRate);
+    String rateString = Integer.toString(sampleRate);
     String[] sampleRateStrings = res.getStringArray(R.array.sampleRates);
     for (int i = 0; i < sampleRateStrings.length; i++) {
       if (sampleRateStrings[i].contains(rateString)) {
@@ -337,24 +337,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       }
     }
 
-    mStereo = myPrefs.getBoolean(STEREO_PREF, MusicService.DEFAULT_STEREO);
+    stereo = myPrefs.getBoolean(STEREO_PREF, MusicService.DEFAULT_STEREO);
     String[] stereoStrings = res.getStringArray(R.array.stereo);
     Spinner stereoSpinner = findViewById(R.id.stereo);
     String stereoKey = getResources().getString(R.string.stereoKey);
-    if (stereoStrings[0].contains(stereoKey) == mStereo) {
+    if (stereoStrings[0].contains(stereoKey) == stereo) {
       stereoSpinner.setSelection(0);
     } else {
       stereoSpinner.setSelection(1);
     }
 
-    mBufferMs =
+    bufferMs =
         myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
-    Log.d(TAG, "mBufferMs:" + mBufferMs);
+    Log.d(TAG, "bufferMs:" + bufferMs);
     EditText e = findViewById(R.id.editTextBufferSize);
-    e.setText(String.format(Locale.getDefault(), "%d", mBufferMs));
+    e.setText(String.format(Locale.getDefault(), "%d", bufferMs));
 
-    mRetry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
-    Log.d(TAG, "mRetry:" + mRetry);
+    retry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
+    Log.d(TAG, "retry:" + retry);
   }
 
   @Override
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   public void onClick(View target) {
     // Send the correct intent to the MusicService, according to the
     // button that was clicked
-    if (target == mPlayButton) {
+    if (target == playButton) {
       switch (getNetworkConnection()) {
       case NOT_CONNECTED:
         Toast.makeText(getApplicationContext(), "No network connectivity.",
@@ -397,8 +397,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       // Get the IP address and port and put it in the intent
       Intent i = new Intent(MusicService.ACTION_PLAY);
       i.setPackage(getPackageName());
-      String ipAddr = mIPAddrText.getText().toString();
-      String portStr = mAudioPortText.getText().toString();
+      String ipAddr = ipAddrText.getText().toString();
+      String portStr = audioPortText.getText().toString();
 
       // Check address string against domain, IPv4, and IPv6
       DomainValidator domainValidator = DomainValidator.getInstance();
@@ -440,9 +440,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       String[] rateSplit = rateStr.split(" ");
       if (rateSplit.length != 0) {
         try {
-          mSampleRate = Integer.parseInt(rateSplit[0]);
-          Log.i(TAG, "rate:" + mSampleRate);
-          i.putExtra(MusicService.DATA_SAMPLE_RATE, mSampleRate);
+          sampleRate = Integer.parseInt(rateSplit[0]);
+          Log.i(TAG, "rate:" + sampleRate);
+          i.putExtra(MusicService.DATA_SAMPLE_RATE, sampleRate);
         } catch (NumberFormatException nfe) {
           // Ignore the error
           Log.i(TAG, "invalid sample rate:" + nfe);
@@ -454,18 +454,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       String stereoSettingString =
           String.valueOf(stereoSpinner.getSelectedItem());
       String stereoKey = getResources().getString(R.string.stereoKey);
-      mStereo = stereoSettingString.contains(stereoKey);
-      i.putExtra(MusicService.DATA_STEREO, mStereo);
-      Log.i(TAG, "stereo:" + mStereo);
+      stereo = stereoSettingString.contains(stereoKey);
+      i.putExtra(MusicService.DATA_STEREO, stereo);
+      Log.i(TAG, "stereo:" + stereo);
 
       // Get the latest buffer entry
       EditText e = findViewById(R.id.editTextBufferSize);
       String bufferMsString = e.getText().toString();
       if (bufferMsString.length() != 0) {
         try {
-          mBufferMs = Integer.parseInt(bufferMsString);
-          Log.d(TAG, "buffer ms:" + mBufferMs);
-          i.putExtra(MusicService.DATA_BUFFER_MS, mBufferMs);
+          bufferMs = Integer.parseInt(bufferMsString);
+          Log.d(TAG, "buffer ms:" + bufferMs);
+          i.putExtra(MusicService.DATA_BUFFER_MS, bufferMs);
         } catch (NumberFormatException nfe) {
           // Ignore the error
           Log.i(TAG, "invalid buffer size:" + nfe);
@@ -473,15 +473,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       }
 
       // Get the retry checkbox
-      mRetry = ((CheckBox) findViewById(R.id.checkBoxRetry)).isChecked();
-      Log.d(TAG, "retry:" + mRetry);
-      i.putExtra(MusicService.DATA_RETRY, mRetry);
+      retry = ((CheckBox) findViewById(R.id.checkBoxRetry)).isChecked();
+      Log.d(TAG, "retry:" + retry);
+      i.putExtra(MusicService.DATA_RETRY, retry);
 
-      // Extract the retry state
       // Save current settings
       savePrefs();
       startService(i);
-    } else if (target == mStopButton) {
+    } else if (target == stopButton) {
       hideKb();
 
       Intent i = new Intent(MusicService.ACTION_STOP);
