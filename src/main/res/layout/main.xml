@@ -129,6 +129,36 @@
       android:layout_height="wrap_content">
 
       <View
+        android:id="@+id/center3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+      <TextView
+        android:id="@+id/labelBitDepth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/center3"
+        android:layout_toStartOf="@+id/center3"
+        android:layout_centerVertical="true"
+        android:text="@string/labelBitDepth" />
+
+      <Spinner
+        android:id="@+id/spinnerBitDepth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/center3"
+        android:layout_toEndOf="@+id/center3"
+        android:entries="@array/bitDepths" />
+    </RelativeLayout>
+
+    <RelativeLayout
+      android:layout_margin="8dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <View
         android:id="@+id/center4"
         android:layout_width="0dp"
         android:layout_height="0dp"

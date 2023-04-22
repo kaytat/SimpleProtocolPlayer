@@ -19,6 +19,8 @@ package com.kaytat.simpleprotocolplayer;
 
 import android.media.AudioTrack;
 import android.util.Log;
+import java.nio.*;
+import java.util.*;
 
 /**
  * Worker thread that takes data from the buffer and sends it to audio track
@@ -43,12 +45,27 @@ class BufferToAudioTrackThread extends ThreadStoppable {
   public void run() {
     Log.i(TAG, "start");
 
+    ByteBuffer byteBuffer = ByteBuffer.allocate(syncObject.bytesPerAudioPacket).order(ByteOrder.LITTLE_ENDIAN);
+    if(!syncObject.useFloatAudio){
+      byteBuffer = null;
+    }
     mTrack.play();
-
+    
     try {
       while (running) {
-        mTrack.write(syncObject.dataQueue.take(), 0,
-            syncObject.bytesPerAudioPacket);
+        byte[] audioData = syncObject.dataQueue.take();
+
+        if (syncObject.useFloatAudio) {
+          byteBuffer.clear();
+          byteBuffer.put(audioData);
+          byteBuffer.rewind();
+          FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
+          float[] floatArray = new float[audioData.length / 4];
+          floatBuffer.get(floatArray);
+          mTrack.write(floatArray, 0, floatArray.length, AudioTrack.WRITE_NON_BLOCKING);
+        } else {
+          mTrack.write(audioData, 0, audioData.length);
+        }
       }
     } catch (Exception e) {
       Log.e(TAG, "exception:" + e);

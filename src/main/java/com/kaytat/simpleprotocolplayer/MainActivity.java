@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   ArrayList<String> audioPortList;
   ArrayAdapter<String> audioPortAdapter;
 
-  int sampleRate;
+  int sampleRate, bitDepth;
   boolean stereo;
   int bufferMs;
   boolean retry;
@@ -145,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String PORT_JSON_PREF = "PORT_JSON_PREF";
 
   static final String RATE_PREF = "RATE";
+  static final String BITDEPTH_PREF = "BITDEPTH";
   static final String STEREO_PREF = "STEREO";
   static final String BUFFER_MS_PREF = "BUFFER_MS";
   static final String RETRY_PREF = "RETRY";
@@ -227,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     prefsEditor.putBoolean(STEREO_PREF, stereo);
     prefsEditor.putInt(RATE_PREF, sampleRate);
+    prefsEditor.putInt(BITDEPTH_PREF, bitDepth);
     prefsEditor.putInt(BUFFER_MS_PREF, bufferMs);
     prefsEditor.putBoolean(RETRY_PREF, retry);
     prefsEditor.putBoolean(USE_PERFORMANCE_MODE_PREF, usePerformanceMode);
@@ -316,6 +318,17 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       if (sampleRateStrings[i].contains(rateString)) {
         Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
         sampleRateSpinner.setSelection(i);
+        break;
+      }
+    }
+
+    bitDepth = myPrefs.getInt(BITDEPTH_PREF, MusicService.DEFAULT_BIT_DEPTH);
+    String bitDepthString = Integer.toString(bitDepth);
+    String[] bitDepthStrings = res.getStringArray(R.array.bitDepths);
+    for (int i = 0; i < bitDepthStrings.length; i++) {
+      if (bitDepthStrings[i].contains(bitDepthString)) {
+        Spinner bitDepthSpinner = findViewById(R.id.spinnerBitDepth);
+        bitDepthSpinner.setSelection(i);
         break;
       }
     }
@@ -428,6 +441,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid rate:" + nfe);
         Toast.makeText(getApplicationContext(), "Invalid rate",
+            Toast.LENGTH_SHORT).show();
+        return;
+      }
+
+      // Extract bit dephts
+      Spinner bitDepthSpinner = findViewById(R.id.spinnerBitDepth);
+      String bitDepthStr = String.valueOf(bitDepthSpinner.getSelectedItem());
+      String[] bitDepthSplit = bitDepthStr.split(" ");
+      try {
+        bitDepth = Integer.parseInt(bitDepthSplit[0]);
+        Log.i(TAG, "bit depth:" + bitDepth);
+        i.putExtra(MusicService.DATA_BIT_DEPTH, bitDepth);
+      } catch (NumberFormatException nfe) {
+        Log.e(TAG, "Invalid bit depth:" + nfe);
+        Toast.makeText(getApplicationContext(), "Invalid bit depth",
             Toast.LENGTH_SHORT).show();
         return;
       }
