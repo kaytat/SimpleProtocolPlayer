@@ -56,5 +56,6 @@
   <string name="retry">Enable network retries</string>
   <string name="usePerformanceMode">Performance mode</string>
   <string name="useMinBuffer">Min AudioTrack buffer</string>
+  <string name="autoConnectOnStart">Auto connect on app start</string>
   <string name="error">Error</string>
 </resources>

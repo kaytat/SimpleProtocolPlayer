@@ -50,6 +50,7 @@ public class MusicService extends Service implements MusicFocusable {
   static final boolean DEFAULT_USE_RNDIS = false;
   static final boolean DEFAULT_USE_PERFORMANCE_MODE = false;
   static final boolean DEFAULT_USE_MIN_BUFFER = false;
+  static final boolean DEFAULT_AUTOCONNECT_ON_START = false;
 
   // These are the Intent actions that we are prepared to handle. Notice
   // that the fact these constants exist in our class is a mere
@@ -71,6 +72,7 @@ public class MusicService extends Service implements MusicFocusable {
   public static final String DATA_USE_PERFORMANCE_MODE = "use_performance_mode";
   public static final String DATA_USE_MIN_BUFFER = "use_min_buffer";
   public static final String DATA_USE_RNDIS = "use_rndis";
+  public static final String DATA_AUTO_CONNECT_ON_START = "auto_connect_on_start";
 
   // The volume we set the media player to when we lose audio focus, but
   // are allowed to reduce the volume instead of stopping playback.
