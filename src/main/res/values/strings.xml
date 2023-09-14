@@ -52,6 +52,7 @@
   <string name="stereoKey">Stereo</string>
   <string name="bufferSize">Buffer size (in ms)</string>
   <string name="bufferSizeHint">Buffer size</string>
+  <string name="useRndis">Use USB Tethering (rndis)</string>
   <string name="retry">Enable network retries</string>
   <string name="usePerformanceMode">Performance mode</string>
   <string name="useMinBuffer">Min AudioTrack buffer</string>

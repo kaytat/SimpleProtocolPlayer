@@ -47,6 +47,7 @@ public class MusicService extends Service implements MusicFocusable {
   static final boolean DEFAULT_STEREO = true;
   static final int DEFAULT_BUFFER_MS = 50;
   static final boolean DEFAULT_RETRY = false;
+  static final boolean DEFAULT_USE_RNDIS = false;
   static final boolean DEFAULT_USE_PERFORMANCE_MODE = false;
   static final boolean DEFAULT_USE_MIN_BUFFER = false;
 
@@ -69,6 +70,7 @@ public class MusicService extends Service implements MusicFocusable {
   public static final String DATA_RETRY = "retry";
   public static final String DATA_USE_PERFORMANCE_MODE = "use_performance_mode";
   public static final String DATA_USE_MIN_BUFFER = "use_min_buffer";
+  public static final String DATA_USE_RNDIS = "use_rndis";
 
   // The volume we set the media player to when we lose audio focus, but
   // are allowed to reduce the volume instead of stopping playback.
@@ -165,7 +167,8 @@ public class MusicService extends Service implements MusicFocusable {
         i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
         i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY),
         i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE, DEFAULT_USE_PERFORMANCE_MODE),
-        i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER));
+        i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER),
+        i.getBooleanExtra(DATA_USE_RNDIS, DEFAULT_USE_RNDIS));
   }
 
   void processStopRequest() {
@@ -262,13 +265,14 @@ public class MusicService extends Service implements MusicFocusable {
       int buffer_ms,
       boolean retry,
       boolean usePerformanceMode,
-      boolean useMinBuffer) {
+      boolean useMinBuffer,
+      boolean useRndis) {
 
     mState = State.Stopped;
     relaxResources();
 
     workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
-        sample_rate, bitDepth, stereo, buffer_ms, retry, usePerformanceMode, useMinBuffer));
+        sample_rate, bitDepth, stereo, buffer_ms, retry, usePerformanceMode, useMinBuffer, useRndis));
 
     mWifiLock.acquire();
 

@@ -55,7 +55,7 @@ public class WorkerThreadPair {
   }
   public WorkerThreadPair(MusicService musicService, String serverAddr,
       int serverPort, int sampleRate, int bitDepth, boolean stereo, int requestedBufferMs,
-      boolean retry, boolean usePerformanceMode, boolean useMinBuffer) {
+      boolean retry, boolean usePerformanceMode, boolean useMinBuffer, boolean useRndis) {
     this.musicService = musicService;
     this.useFloatAudio = bitDepth == 32;
     int channelMask =
@@ -91,7 +91,7 @@ public class WorkerThreadPair {
     audioThread = new BufferToAudioTrackThread(this,
         "audio:" + serverAddr + ":" + serverPort);
     networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
-        "net:" + serverAddr + ":" + serverPort);
+        "net:" + serverAddr + ":" + serverPort, useRndis, musicService);
 
     audioThread.start();
     networkThread.start();

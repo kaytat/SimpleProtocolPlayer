@@ -79,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   boolean retry;
   boolean usePerformanceMode;
   boolean useMinBuffer;
+  boolean useRndis;
 
   Button playButton;
   Button stopButton;
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String STEREO_PREF = "STEREO";
   static final String BUFFER_MS_PREF = "BUFFER_MS";
   static final String RETRY_PREF = "RETRY";
+  static final String USE_RNDIS = "USE_RNDIS";
   static final String USE_PERFORMANCE_MODE_PREF = "USE_PERFORMANCE_MODE";
   static final String USE_MIN_BUFFER_PREF = "USE_MIN_BUFFER";
 
@@ -233,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     prefsEditor.putBoolean(RETRY_PREF, retry);
     prefsEditor.putBoolean(USE_PERFORMANCE_MODE_PREF, usePerformanceMode);
     prefsEditor.putBoolean(USE_MIN_BUFFER_PREF, useMinBuffer);
+    prefsEditor.putBoolean(USE_RNDIS, useRndis);
     prefsEditor.apply();
 
     // Update adapters
@@ -359,6 +362,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF, MusicService.DEFAULT_USE_MIN_BUFFER);
     ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(useMinBuffer);
     Log.d(TAG, "useMinBuffer:" + useMinBuffer);
+
+    useRndis = myPrefs.getBoolean(USE_RNDIS, MusicService.DEFAULT_USE_RNDIS);
+    ((CheckBox) findViewById(R.id.checkBoxUseRndis)).setChecked(useRndis);
+    Log.d(TAG, "useRndis:" + useRndis);
   }
 
   @Override
@@ -498,6 +505,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       Log.d(TAG, "useMinBuffer:" + useMinBuffer);
       i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 
+      // Get the useRndis checkbox
+      useRndis = ((CheckBox) findViewById(R.id.checkBoxUseRndis)).isChecked();
+      Log.d(TAG, "useRndis:" + useRndis);
+      i.putExtra(MusicService.DATA_USE_RNDIS, useRndis);
+      
       // Save current settings
       savePrefs();
       startService(i);

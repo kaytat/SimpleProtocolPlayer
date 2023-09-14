@@ -21,6 +21,13 @@ import android.util.Log;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import androidx.annotation.Nullable;
+import android.widget.Toast;
+import java.net.InterfaceAddress;
+import java.net.InetAddress;
 
 /**
  * Worker thread reads data from the network
@@ -35,12 +42,14 @@ class NetworkReadThread extends ThreadStoppable {
   };
 
   final WorkerThreadPair syncObject;
-  final String ipAddr;
+  String ipAddr;
   final int port;
+  final boolean useRndis;
   final boolean attemptConnectionRetry;
   final byte[][] dataBuffer;
   final int numBuffers;
   int bufferIndex;
+  MusicService musicService;
 
   // socket timeout at 5 seconds
   static final int SOCKET_TIMEOUT = 5 * 1000;
@@ -50,12 +59,16 @@ class NetworkReadThread extends ThreadStoppable {
       String ipAddr,
       int port,
       boolean attemptConnectionRetry,
-      String debugTag) {
+      String debugTag,
+      boolean useRndis,
+      MusicService musicService) {
     this.TAG = debugTag;
     this.setName(debugTag);
     this.syncObject = syncObject;
     this.ipAddr = ipAddr;
+    this.useRndis = useRndis;
     this.port = port;
+    this.musicService = musicService;
     this.attemptConnectionRetry = attemptConnectionRetry;
 
     // since we use BlockingQueue to pass data
@@ -68,6 +81,50 @@ class NetworkReadThread extends ThreadStoppable {
     for (int i = 0; i < numBuffers; i++) {
       dataBuffer[i] = new byte[syncObject.bytesPerAudioPacket];
     }
+  }
+
+  @Nullable
+  public String checkIPRange(String ip) {
+    String[] parts = ip.split("\\.");
+    String baseIP = parts[0] + "." + parts[1] + "." + parts[2] + "."; 
+    int end = Integer.parseInt(parts[3]);
+        for (int i = 1; i <= 254; i++) {
+            String ipAddress = baseIP + i;
+            if(end != i){
+              try {
+                  InetAddress inet = InetAddress.getByName(ipAddress);
+                  if (inet.isReachable(1)) {
+                      return ipAddress;
+                  }
+              } catch (IOException e) {
+                Toast.makeText(musicService.getApplicationContext(), "Error while checking IP: " + ipAddress + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
+              }
+            }
+        }
+    return null;
+  }
+
+  @Nullable
+  public String getTetheredGatewayIp() {
+    try {
+      Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+      while (networkInterfaces.hasMoreElements()) {
+          NetworkInterface nic = networkInterfaces.nextElement();
+          if (nic.isUp() && nic.getName().contains("rndis")) {
+            for ( InterfaceAddress interfaceAddress : nic.getInterfaceAddresses()){
+              String ip = interfaceAddress.getAddress().getHostAddress();
+              if(ip.indexOf('%') == -1){ // Skips IPv6 IP
+                return checkIPRange(ip);
+              }
+            }
+          }
+      }
+      }
+     catch (Exception e) {
+      e.printStackTrace();
+      Toast.makeText(musicService.getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+      return null;
   }
 
   @Override
@@ -130,6 +187,12 @@ class NetworkReadThread extends ThreadStoppable {
 
     try {
       // Create the TCP socket and setup some parameters
+      if(useRndis){
+        String tetherIp = getTetheredGatewayIp();
+        if(tetherIp != null){
+          ipAddr = tetherIp;
+        }
+      }
       socket = new Socket(ipAddr, port);
       DataInputStream is = new DataInputStream(socket.getInputStream());
       socket.setSoTimeout(SOCKET_TIMEOUT);
