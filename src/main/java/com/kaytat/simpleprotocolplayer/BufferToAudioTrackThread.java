@@ -19,8 +19,6 @@ package com.kaytat.simpleprotocolplayer;
 
 import android.media.AudioTrack;
 import android.util.Log;
-import java.nio.*;
-import java.util.*;
 
 /**
  * Worker thread that takes data from the buffer and sends it to audio track
@@ -45,23 +43,24 @@ class BufferToAudioTrackThread extends ThreadStoppable {
   public void run() {
     Log.i(TAG, "start");
 
-    ByteBuffer byteBuffer = ByteBuffer.allocate(syncObject.bytesPerAudioPacket).order(ByteOrder.LITTLE_ENDIAN);
+    int floatLengthBuffer = syncObject.bytesPerAudioPacket / 4;
+    float[] floatArray = new float[floatLengthBuffer];
+    byte[] audioData = new byte[syncObject.bytesPerAudioPacket];
     if(!syncObject.useFloatAudio){
-      byteBuffer = null;
+      floatArray = null;
     }
     mTrack.play();
-    
+
     try {
       while (running) {
-        byte[] audioData = syncObject.dataQueue.take();
-
+        audioData = syncObject.dataQueue.take();
         if (syncObject.useFloatAudio) {
-          byteBuffer.clear();
-          byteBuffer.put(audioData);
-          byteBuffer.rewind();
-          FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
-          float[] floatArray = new float[audioData.length / 4];
-          floatBuffer.get(floatArray);
+          for(int i = 0; i < floatLengthBuffer; i++){
+            floatArray[i] = Float.intBitsToFloat((audioData[i * 4] & 0xFF) 
+            | ((audioData[i * 4 + 1] & 0xFF) << 8)
+            | ((audioData[i * 4 + 2] & 0xFF) << 16) 
+            | ((audioData[i * 4 + 3] & 0xFF) << 24));
+          }
           mTrack.write(floatArray, 0, floatArray.length, AudioTrack.WRITE_NON_BLOCKING);
         } else {
           mTrack.write(audioData, 0, audioData.length);
