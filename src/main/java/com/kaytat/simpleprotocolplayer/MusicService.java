@@ -42,12 +42,15 @@ public class MusicService extends Service implements MusicFocusable {
   static final String TAG = "SimpleProtocol";
 
   static final int DEFAULT_AUDIO_PORT = 12345;
-  static final int DEFAULT_SAMPLE_RATE = 44100;
+  static final int DEFAULT_SAMPLE_RATE = 48000;
+  static final int DEFAULT_BIT_DEPTH = 32;
   static final boolean DEFAULT_STEREO = true;
   static final int DEFAULT_BUFFER_MS = 50;
   static final boolean DEFAULT_RETRY = false;
+  static final boolean DEFAULT_USE_RNDIS = false;
   static final boolean DEFAULT_USE_PERFORMANCE_MODE = false;
   static final boolean DEFAULT_USE_MIN_BUFFER = false;
+  static final boolean DEFAULT_AUTOCONNECT_ON_START = false;
 
   // These are the Intent actions that we are prepared to handle. Notice
   // that the fact these constants exist in our class is a mere
@@ -62,11 +65,14 @@ public class MusicService extends Service implements MusicFocusable {
   public static final String DATA_IP_ADDRESS = "ip_addr";
   public static final String DATA_AUDIO_PORT = "audio_port";
   public static final String DATA_SAMPLE_RATE = "sample_rate";
+  public static final String DATA_BIT_DEPTH = "bit_depth";
   public static final String DATA_STEREO = "stereo";
   public static final String DATA_BUFFER_MS = "buffer_ms";
   public static final String DATA_RETRY = "retry";
   public static final String DATA_USE_PERFORMANCE_MODE = "use_performance_mode";
   public static final String DATA_USE_MIN_BUFFER = "use_min_buffer";
+  public static final String DATA_USE_RNDIS = "use_rndis";
+  public static final String DATA_AUTO_CONNECT_ON_START = "auto_connect_on_start";
 
   // The volume we set the media player to when we lose audio focus, but
   // are allowed to reduce the volume instead of stopping playback.
@@ -158,11 +164,13 @@ public class MusicService extends Service implements MusicFocusable {
         i.getStringExtra(DATA_IP_ADDRESS),
         i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
         i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
+        i.getIntExtra(DATA_BIT_DEPTH, DEFAULT_BIT_DEPTH),
         i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
         i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
         i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY),
         i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE, DEFAULT_USE_PERFORMANCE_MODE),
-        i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER));
+        i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER),
+        i.getBooleanExtra(DATA_USE_RNDIS, DEFAULT_USE_RNDIS));
   }
 
   void processStopRequest() {
@@ -254,17 +262,19 @@ public class MusicService extends Service implements MusicFocusable {
       String serverAddr,
       int serverPort,
       int sample_rate,
+      int bitDepth,
       boolean stereo,
       int buffer_ms,
       boolean retry,
       boolean usePerformanceMode,
-      boolean useMinBuffer) {
+      boolean useMinBuffer,
+      boolean useRndis) {
 
     mState = State.Stopped;
     relaxResources();
 
     workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
-        sample_rate, stereo, buffer_ms, retry, usePerformanceMode, useMinBuffer));
+        sample_rate, bitDepth, stereo, buffer_ms, retry, usePerformanceMode, useMinBuffer, useRndis));
 
     mWifiLock.acquire();
 

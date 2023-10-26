@@ -38,11 +38,26 @@ public class WorkerThreadPair {
   private final BufferToAudioTrackThread audioThread;
   private final NetworkReadThread networkThread;
   final AudioTrack audioTrack;
-
+  boolean useFloatAudio;
+  static int bitDepthToFormat (int bitDepth){
+    switch(bitDepth) {
+      case 8:
+        return AudioFormat.ENCODING_PCM_8BIT;
+      case 16:
+        return AudioFormat.ENCODING_PCM_16BIT;
+      case 24:
+        return AudioFormat.ENCODING_PCM_24BIT_PACKED;
+      case 32:
+        return AudioFormat.ENCODING_PCM_FLOAT;
+    }
+    Log.d(TAG, "error bit depth to format conversion: " + bitDepth);
+    return 0;
+  }
   public WorkerThreadPair(MusicService musicService, String serverAddr,
-      int serverPort, int sampleRate, boolean stereo, int requestedBufferMs,
-      boolean retry, boolean usePerformanceMode, boolean useMinBuffer) {
+      int serverPort, int sampleRate, int bitDepth, boolean stereo, int requestedBufferMs,
+      boolean retry, boolean usePerformanceMode, boolean useMinBuffer, boolean useRndis) {
     this.musicService = musicService;
+    this.useFloatAudio = bitDepth == 32;
     int channelMask =
         stereo ? AudioFormat.CHANNEL_OUT_STEREO : AudioFormat.CHANNEL_OUT_MONO;
 
@@ -53,7 +68,7 @@ public class WorkerThreadPair {
 
     int audioTrackMinBuffer = AudioTrack
         .getMinBufferSize(sampleRate, channelMask,
-            AudioFormat.ENCODING_PCM_16BIT);
+            bitDepthToFormat(bitDepth));
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
     if (useMinBuffer) {
@@ -64,25 +79,25 @@ public class WorkerThreadPair {
         requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
       }
       bytesPerAudioPacket =
-          calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
+          calcBytesPerAudioPacket(sampleRate, bitDepth, stereo, requestedBufferMs);
     }
     Log.d(TAG, "useMinBuffer:" + useMinBuffer);
 
     // The agreement here is that audioTrack will be shutdown by the helper
-    audioTrack = buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer,
+    audioTrack = buildAudioTrack(sampleRate, bitDepth, channelMask, audioTrackMinBuffer,
         usePerformanceMode);
     Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
     audioThread = new BufferToAudioTrackThread(this,
         "audio:" + serverAddr + ":" + serverPort);
     networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
-        "net:" + serverAddr + ":" + serverPort);
+        "net:" + serverAddr + ":" + serverPort, useRndis, musicService);
 
     audioThread.start();
     networkThread.start();
   }
 
-  static AudioTrack buildAudioTrack(int sampleRate, int channelMask,
+  static AudioTrack buildAudioTrack(int sampleRate, int bitDepth, int channelMask,
       int audioTrackMinBuffer, boolean usePerformanceMode) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       // PERFORMANCE_MODE_LOW_LATENCY was only added in O (API 26).
@@ -94,7 +109,7 @@ public class WorkerThreadPair {
               .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
               .build())
           .setAudioFormat(new AudioFormat.Builder()
-              .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+              .setEncoding(bitDepthToFormat(bitDepth))
               .setSampleRate(sampleRate)
               .setChannelMask(channelMask)
               .build())
@@ -108,16 +123,15 @@ public class WorkerThreadPair {
 
     } else {
       return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-          channelMask, AudioFormat.ENCODING_PCM_16BIT, audioTrackMinBuffer,
+          channelMask, bitDepthToFormat(bitDepth), audioTrackMinBuffer,
           AudioTrack.MODE_STREAM);
     }
   }
 
-  static int calcBytesPerAudioPacket(int sampleRate, boolean stereo,
+  static int calcBytesPerAudioPacket(int sampleRate, int bitDepth, boolean stereo,
       int requestedBufferMs) {
 
-    // Assume 16 bits per sample
-    int bytesPerSecond = sampleRate * 2;
+    int bytesPerSecond = sampleRate * (bitDepth / 8);
     if (stereo) {
       bytesPerSecond *= 2;
     }

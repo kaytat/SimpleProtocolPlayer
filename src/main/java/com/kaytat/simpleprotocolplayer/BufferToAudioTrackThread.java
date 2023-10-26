@@ -43,12 +43,28 @@ class BufferToAudioTrackThread extends ThreadStoppable {
   public void run() {
     Log.i(TAG, "start");
 
+    int floatLengthBuffer = syncObject.bytesPerAudioPacket / 4;
+    float[] floatArray = new float[floatLengthBuffer];
+    byte[] audioData = new byte[syncObject.bytesPerAudioPacket];
+    if(!syncObject.useFloatAudio){
+      floatArray = null;
+    }
     mTrack.play();
 
     try {
       while (running) {
-        mTrack.write(syncObject.dataQueue.take(), 0,
-            syncObject.bytesPerAudioPacket);
+        audioData = syncObject.dataQueue.take();
+        if (syncObject.useFloatAudio) {
+          for(int i = 0; i < floatLengthBuffer; i++){
+            floatArray[i] = Float.intBitsToFloat((audioData[i * 4] & 0xFF) 
+            | ((audioData[i * 4 + 1] & 0xFF) << 8)
+            | ((audioData[i * 4 + 2] & 0xFF) << 16) 
+            | ((audioData[i * 4 + 3] & 0xFF) << 24));
+          }
+          mTrack.write(floatArray, 0, floatArray.length, AudioTrack.WRITE_NON_BLOCKING);
+        } else {
+          mTrack.write(audioData, 0, audioData.length);
+        }
       }
     } catch (Exception e) {
       Log.e(TAG, "exception:" + e);

@@ -73,13 +73,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   ArrayList<String> audioPortList;
   ArrayAdapter<String> audioPortAdapter;
 
-  int sampleRate;
+  int sampleRate, bitDepth;
   boolean stereo;
   int bufferMs;
   boolean retry;
   boolean usePerformanceMode;
   boolean useMinBuffer;
-
+  boolean useRndis;
+  boolean autoConnectOnStart;
   Button playButton;
   Button stopButton;
 
@@ -89,6 +90,94 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     NON_WIFI_CONNECTED
   }
 
+  public void loadPrefs(){
+    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+
+    ipAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
+    ipAddrAdapter =
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            ipAddrList);
+    ipAddrText.setAdapter(ipAddrAdapter);
+    ipAddrText.setThreshold(1);
+    if (ipAddrList.size() != 0) {
+      ipAddrText.setText(ipAddrList.get(0));
+    }
+
+    if (!isEmpty(ipAddrText)) {
+      getWindow().setSoftInputMode(
+          WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
+    audioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
+    audioPortAdapter =
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            audioPortList);
+    audioPortText.setAdapter(audioPortAdapter);
+    audioPortText.setThreshold(1);
+    if (audioPortList.size() != 0) {
+      audioPortText.setText(audioPortList.get(0));
+    }
+
+    // These hard-coded values should match the defaults in the strings array
+    Resources res = getResources();
+
+    sampleRate = myPrefs.getInt(RATE_PREF, MusicService.DEFAULT_SAMPLE_RATE);
+    String rateString = Integer.toString(sampleRate);
+    String[] sampleRateStrings = res.getStringArray(R.array.sampleRates);
+    for (int i = 0; i < sampleRateStrings.length; i++) {
+      if (sampleRateStrings[i].contains(rateString)) {
+        Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
+        sampleRateSpinner.setSelection(i);
+        break;
+      }
+    }
+
+    bitDepth = myPrefs.getInt(BITDEPTH_PREF, MusicService.DEFAULT_BIT_DEPTH);
+    String bitDepthString = Integer.toString(bitDepth);
+    String[] bitDepthStrings = res.getStringArray(R.array.bitDepths);
+    for (int i = 0; i < bitDepthStrings.length; i++) {
+      if (bitDepthStrings[i].contains(bitDepthString)) {
+        Spinner bitDepthSpinner = findViewById(R.id.spinnerBitDepth);
+        bitDepthSpinner.setSelection(i);
+        break;
+      }
+    }
+
+    stereo = myPrefs.getBoolean(STEREO_PREF, MusicService.DEFAULT_STEREO);
+    String[] stereoStrings = res.getStringArray(R.array.stereo);
+    Spinner stereoSpinner = findViewById(R.id.stereo);
+    String stereoKey = getResources().getString(R.string.stereoKey);
+    if (stereoStrings[0].contains(stereoKey) == stereo) {
+      stereoSpinner.setSelection(0);
+    } else {
+      stereoSpinner.setSelection(1);
+    }
+
+    bufferMs = myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
+    Log.d(TAG, "bufferMs:" + bufferMs);
+    EditText e = findViewById(R.id.editTextBufferSize);
+    e.setText(String.format(Locale.getDefault(), "%d", bufferMs));
+
+    retry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
+    ((CheckBox) findViewById(R.id.checkBoxRetry)).setChecked(retry);
+    Log.d(TAG, "retry:" + retry);
+
+    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
+    ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(usePerformanceMode);
+    Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
+
+    useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF, MusicService.DEFAULT_USE_MIN_BUFFER);
+    ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(useMinBuffer);
+    Log.d(TAG, "useMinBuffer:" + useMinBuffer);
+
+    useRndis = myPrefs.getBoolean(USE_RNDIS, MusicService.DEFAULT_USE_RNDIS);
+    ((CheckBox) findViewById(R.id.checkBoxUseRndis)).setChecked(useRndis);
+    Log.d(TAG, "useRndis:" + useRndis);
+
+    autoConnectOnStart = myPrefs.getBoolean(AUTOCONNECT_ON_START, MusicService.DEFAULT_AUTOCONNECT_ON_START);
+    ((CheckBox) findViewById(R.id.checkBoxAutoConnectOnStart)).setChecked(autoConnectOnStart);
+    Log.d(TAG, "autoConnectOnStart:" + autoConnectOnStart);
+  }
   /**
    * Called when the activity is first created. Here, we simply set the
    * event listeners and start the background service ({@link MusicService})
@@ -131,6 +220,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
           }
 
         });
+    
+    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
+    loadPrefs();
+    if(autoConnectOnStart){
+      play();
+    }
   }
 
   /**
@@ -145,11 +240,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String PORT_JSON_PREF = "PORT_JSON_PREF";
 
   static final String RATE_PREF = "RATE";
+  static final String BITDEPTH_PREF = "BITDEPTH";
   static final String STEREO_PREF = "STEREO";
   static final String BUFFER_MS_PREF = "BUFFER_MS";
   static final String RETRY_PREF = "RETRY";
+  static final String USE_RNDIS = "USE_RNDIS";
   static final String USE_PERFORMANCE_MODE_PREF = "USE_PERFORMANCE_MODE";
   static final String USE_MIN_BUFFER_PREF = "USE_MIN_BUFFER";
+  static final String AUTOCONNECT_ON_START = "AUTOCONNECT_ON_START";
 
   ArrayList<String> getListFromPrefs(SharedPreferences prefs, String keyJson,
       String keySingle) {
@@ -227,10 +325,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     prefsEditor.putBoolean(STEREO_PREF, stereo);
     prefsEditor.putInt(RATE_PREF, sampleRate);
+    prefsEditor.putInt(BITDEPTH_PREF, bitDepth);
     prefsEditor.putInt(BUFFER_MS_PREF, bufferMs);
     prefsEditor.putBoolean(RETRY_PREF, retry);
     prefsEditor.putBoolean(USE_PERFORMANCE_MODE_PREF, usePerformanceMode);
     prefsEditor.putBoolean(USE_MIN_BUFFER_PREF, useMinBuffer);
+    prefsEditor.putBoolean(USE_RNDIS, useRndis);
+    prefsEditor.putBoolean(AUTOCONNECT_ON_START, autoConnectOnStart);
     prefsEditor.apply();
 
     // Update adapters
@@ -279,73 +380,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   @Override
   public void onResume() {
     super.onResume();
-    SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
-
-    ipAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
-    ipAddrAdapter =
-        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-            ipAddrList);
-    ipAddrText.setAdapter(ipAddrAdapter);
-    ipAddrText.setThreshold(1);
-    if (ipAddrList.size() != 0) {
-      ipAddrText.setText(ipAddrList.get(0));
-    }
-
-    if (!isEmpty(ipAddrText)) {
-      getWindow().setSoftInputMode(
-          WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    }
-
-    audioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
-    audioPortAdapter =
-        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-            audioPortList);
-    audioPortText.setAdapter(audioPortAdapter);
-    audioPortText.setThreshold(1);
-    if (audioPortList.size() != 0) {
-      audioPortText.setText(audioPortList.get(0));
-    }
-
-    // These hard-coded values should match the defaults in the strings array
-    Resources res = getResources();
-
-    sampleRate = myPrefs.getInt(RATE_PREF, MusicService.DEFAULT_SAMPLE_RATE);
-    String rateString = Integer.toString(sampleRate);
-    String[] sampleRateStrings = res.getStringArray(R.array.sampleRates);
-    for (int i = 0; i < sampleRateStrings.length; i++) {
-      if (sampleRateStrings[i].contains(rateString)) {
-        Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
-        sampleRateSpinner.setSelection(i);
-        break;
-      }
-    }
-
-    stereo = myPrefs.getBoolean(STEREO_PREF, MusicService.DEFAULT_STEREO);
-    String[] stereoStrings = res.getStringArray(R.array.stereo);
-    Spinner stereoSpinner = findViewById(R.id.stereo);
-    String stereoKey = getResources().getString(R.string.stereoKey);
-    if (stereoStrings[0].contains(stereoKey) == stereo) {
-      stereoSpinner.setSelection(0);
-    } else {
-      stereoSpinner.setSelection(1);
-    }
-
-    bufferMs = myPrefs.getInt(BUFFER_MS_PREF, MusicService.DEFAULT_BUFFER_MS);
-    Log.d(TAG, "bufferMs:" + bufferMs);
-    EditText e = findViewById(R.id.editTextBufferSize);
-    e.setText(String.format(Locale.getDefault(), "%d", bufferMs));
-
-    retry = myPrefs.getBoolean(RETRY_PREF, MusicService.DEFAULT_RETRY);
-    ((CheckBox) findViewById(R.id.checkBoxRetry)).setChecked(retry);
-    Log.d(TAG, "retry:" + retry);
-
-    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
-    ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(usePerformanceMode);
-    Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
-
-    useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF, MusicService.DEFAULT_USE_MIN_BUFFER);
-    ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(useMinBuffer);
-    Log.d(TAG, "useMinBuffer:" + useMinBuffer);
+    loadPrefs();
   }
 
   @Override
@@ -366,10 +401,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
   }
 
-  public void onClick(View target) {
-    // Send the correct intent to the MusicService, according to the
-    // button that was clicked
-    if (target == playButton) {
+  public void play () {
       switch (getNetworkConnection()) {
       case NOT_CONNECTED:
         Toast.makeText(getApplicationContext(), "No network connectivity.",
@@ -432,6 +464,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return;
       }
 
+      // Extract bit dephts
+      Spinner bitDepthSpinner = findViewById(R.id.spinnerBitDepth);
+      String bitDepthStr = String.valueOf(bitDepthSpinner.getSelectedItem());
+      String[] bitDepthSplit = bitDepthStr.split(" ");
+      try {
+        bitDepth = Integer.parseInt(bitDepthSplit[0]);
+        Log.i(TAG, "bit depth:" + bitDepth);
+        i.putExtra(MusicService.DATA_BIT_DEPTH, bitDepth);
+      } catch (NumberFormatException nfe) {
+        Log.e(TAG, "Invalid bit depth:" + nfe);
+        Toast.makeText(getApplicationContext(), "Invalid bit depth",
+            Toast.LENGTH_SHORT).show();
+        return;
+      }
+
       // Extract stereo/mono setting
       Spinner stereoSpinner = findViewById(R.id.stereo);
       String stereoSettingString =
@@ -470,9 +517,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       Log.d(TAG, "useMinBuffer:" + useMinBuffer);
       i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 
+      // Get the useRndis checkbox
+      useRndis = ((CheckBox) findViewById(R.id.checkBoxUseRndis)).isChecked();
+      Log.d(TAG, "useRndis:" + useRndis);
+      i.putExtra(MusicService.DATA_USE_RNDIS, useRndis);
+      
+      // Get the autoConnectOnStart checkbox
+      autoConnectOnStart = ((CheckBox) findViewById(R.id.checkBoxAutoConnectOnStart)).isChecked();
+      Log.d(TAG, "autoConnectOnStart:" + autoConnectOnStart);
+      i.putExtra(MusicService.DATA_AUTO_CONNECT_ON_START, autoConnectOnStart);
+
       // Save current settings
       savePrefs();
       startService(i);
+  }
+
+  public void onClick(View target) {
+    // Send the correct intent to the MusicService, according to the
+    // button that was clicked
+    if (target == playButton) {
+      play();
     } else if (target == stopButton) {
       hideKb();
 

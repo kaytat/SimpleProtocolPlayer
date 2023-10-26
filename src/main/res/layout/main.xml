@@ -129,6 +129,36 @@
       android:layout_height="wrap_content">
 
       <View
+        android:id="@+id/center3"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+      <TextView
+        android:id="@+id/labelBitDepth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/center3"
+        android:layout_toStartOf="@+id/center3"
+        android:layout_centerVertical="true"
+        android:text="@string/labelBitDepth" />
+
+      <Spinner
+        android:id="@+id/spinnerBitDepth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/center3"
+        android:layout_toEndOf="@+id/center3"
+        android:entries="@array/bitDepths" />
+    </RelativeLayout>
+
+    <RelativeLayout
+      android:layout_margin="8dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <View
         android:id="@+id/center4"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -229,19 +259,20 @@
         android:layout_centerHorizontal="true"
         android:visibility="invisible" />
 
+
       <TextView
-        android:id="@+id/labelUsePerformanceMode"
+        android:id="@+id/labelUseRndis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center7"
         android:layout_toStartOf="@+id/center7"
         android:layout_centerVertical="true"
-        android:text="@string/usePerformanceMode" />
+        android:text="@string/useRndis" />
 
       <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/checkBoxUsePerformanceMode"
+        android:id="@+id/checkBoxUseRndis"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/center7"
         android:layout_toEndOf="@+id/center7" />
@@ -259,12 +290,43 @@
         android:layout_centerHorizontal="true"
         android:visibility="invisible" />
 
+
       <TextView
-        android:id="@+id/labelUseMinBuffer"
+        android:id="@+id/labelUsePerformanceMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/center8"
         android:layout_toStartOf="@+id/center8"
+        android:layout_centerVertical="true"
+        android:text="@string/usePerformanceMode" />
+
+      <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBoxUsePerformanceMode"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/center8"
+        android:layout_toEndOf="@+id/center8" />
+    </RelativeLayout>
+
+    <RelativeLayout
+      android:layout_margin="8dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <View
+        android:id="@+id/center9"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+      <TextView
+        android:id="@+id/labelUseMinBuffer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/center9"
+        android:layout_toStartOf="@+id/center9"
         android:layout_centerVertical="true"
         android:text="@string/useMinBuffer" />
 
@@ -273,8 +335,39 @@
         android:layout_height="wrap_content"
         android:id="@+id/checkBoxUseMinBuffer"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@+id/center8"
-        android:layout_toEndOf="@+id/center8" />
+        android:layout_toRightOf="@+id/center9"
+        android:layout_toEndOf="@+id/center9" />
+    </RelativeLayout>
+
+    <RelativeLayout
+      android:layout_margin="8dp"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+
+      <View
+        android:id="@+id/center10"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+
+      <TextView
+        android:id="@+id/labelAutoConnectOnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/center10"
+        android:layout_toStartOf="@+id/center10"
+        android:layout_centerVertical="true"
+        android:text="@string/autoConnectOnStart" />
+
+      <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkBoxAutoConnectOnStart"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/center10"
+        android:layout_toEndOf="@+id/center10" />
     </RelativeLayout>
 
     <LinearLayout

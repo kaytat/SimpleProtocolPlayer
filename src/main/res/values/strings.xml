@@ -25,14 +25,24 @@
   <string name="notice_item">Notice</string>
   <string name="notice_title">Notice</string>
   <string name="labelSampleRate">Sample Rate</string>
+  <string name="labelBitDepth">Bit Depth</string>
   <string name="labelStereoMono">Mono/Stereo</string>
   <string-array name="sampleRates">
     <item>11025</item>
     <item>12000</item>
     <item>22050</item>
     <item>24000</item>
-    <item>44100 (Default)</item>
-    <item>48000</item>
+    <item>44100</item>
+    <item>48000 (Default)</item>
+    <item>96000</item>
+    <item>192000</item>
+    <item>384000</item>
+  </string-array>
+  <string-array name="bitDepths">
+    <item>8</item>
+    <item>16 (Default)</item>
+    <item>24</item>
+    <item>32 (float)</item>
   </string-array>
   <string-array name="stereo">
     <item>Mono</item>
@@ -42,8 +52,10 @@
   <string name="stereoKey">Stereo</string>
   <string name="bufferSize">Buffer size (in ms)</string>
   <string name="bufferSizeHint">Buffer size</string>
+  <string name="useRndis">Use USB Tethering (rndis)</string>
   <string name="retry">Enable network retries</string>
   <string name="usePerformanceMode">Performance mode</string>
   <string name="useMinBuffer">Min AudioTrack buffer</string>
+  <string name="autoConnectOnStart">Auto connect on app start</string>
   <string name="error">Error</string>
 </resources>
