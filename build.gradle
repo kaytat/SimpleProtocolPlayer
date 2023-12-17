@@ -19,11 +19,11 @@ allprojects {
 }
 apply plugin: 'com.android.application'
 android {
-    compileSdk 31
+    compileSdk 34
     defaultConfig {
         applicationId "com.kaytat.simpleprotocolplayer"
         minSdkVersion 16
-        targetSdkVersion 31
+        targetSdkVersion 34
     }
     buildTypes {
         release {
@@ -37,9 +37,9 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'androidx.core:core:1.7.0'
-    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'commons-validator:commons-validator:1.7'
 }
 

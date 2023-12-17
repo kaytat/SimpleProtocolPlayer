@@ -22,8 +22,10 @@
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
   <application
@@ -59,6 +61,7 @@
     <service
       android:name="com.kaytat.simpleprotocolplayer.MusicService"
       android:exported="true"
+      android:foregroundServiceType="mediaPlayback"
       tools:ignore="ExportedService">
       <intent-filter>
         <action android:name="com.kaytat.simpleprotocolplayer.action.PLAY" />
