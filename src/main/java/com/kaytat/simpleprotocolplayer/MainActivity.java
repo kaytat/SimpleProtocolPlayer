@@ -341,12 +341,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     ((CheckBox) findViewById(R.id.checkBoxRetry)).setChecked(retry);
     Log.d(TAG, "retry:" + retry);
 
-    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
-    ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(usePerformanceMode);
+    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF,
+        MusicService.DEFAULT_USE_PERFORMANCE_MODE);
+    ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(
+        usePerformanceMode);
     Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
-    useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF, MusicService.DEFAULT_USE_MIN_BUFFER);
-    ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(useMinBuffer);
+    useMinBuffer = myPrefs.getBoolean(USE_MIN_BUFFER_PREF,
+        MusicService.DEFAULT_USE_MIN_BUFFER);
+    ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).setChecked(
+        useMinBuffer);
     Log.d(TAG, "useMinBuffer:" + useMinBuffer);
   }
 
@@ -463,12 +467,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       i.putExtra(MusicService.DATA_RETRY, retry);
 
       // Get the usePerformanceMode checkbox
-      usePerformanceMode = ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).isChecked();
+      usePerformanceMode = ((CheckBox) findViewById(
+          R.id.checkBoxUsePerformanceMode)).isChecked();
       Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
       i.putExtra(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
 
       // Get the useMinBuffer checkbox
-      useMinBuffer = ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).isChecked();
+      useMinBuffer =
+          ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).isChecked();
       Log.d(TAG, "useMinBuffer:" + useMinBuffer);
       i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 

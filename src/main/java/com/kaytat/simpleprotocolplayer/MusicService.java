@@ -163,7 +163,8 @@ public class MusicService extends Service implements MusicFocusable {
         i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
         i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
         i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY),
-        i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE, DEFAULT_USE_PERFORMANCE_MODE),
+        i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE,
+            DEFAULT_USE_PERFORMANCE_MODE),
         i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER));
   }
 
@@ -266,7 +267,8 @@ public class MusicService extends Service implements MusicFocusable {
     relaxResources();
 
     workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
-        sample_rate, stereo, buffer_ms, retry, usePerformanceMode, useMinBuffer));
+        sample_rate, stereo, buffer_ms, retry, usePerformanceMode,
+        useMinBuffer));
 
     mWifiLock.acquire();
 
