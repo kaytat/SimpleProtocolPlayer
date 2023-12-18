@@ -136,15 +136,17 @@ public class MusicService extends Service implements MusicFocusable {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     String action = intent.getAction();
-    if (action.equals(ACTION_PLAY)) {
-      processPlayRequest(intent);
-    } else if (action.equals(ACTION_STOP)) {
-      processStopRequest();
+    if (action != null) {
+      if (action.equals(ACTION_PLAY)) {
+        processPlayRequest(intent);
+      } else if (action.equals(ACTION_STOP)) {
+        processStopRequest();
+      }
     }
 
-    return START_NOT_STICKY; // Means we started the service, but don't
-    // want it to
-    // restart in case it's killed.
+    // Means we started the service, but don't want it to restart in case it's
+    // killed.
+    return START_NOT_STICKY;
   }
 
   void processPlayRequest(Intent i) {

@@ -47,6 +47,7 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Spinner;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -247,6 +248,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public final List<T> items;
 
     @Override
+    @NonNull
     public Filter getFilter() {
       return filter;
     }
