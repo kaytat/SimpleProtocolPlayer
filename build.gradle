@@ -22,7 +22,7 @@ android {
     compileSdk 34
     defaultConfig {
         applicationId "com.kaytat.simpleprotocolplayer"
-        minSdkVersion 16
+        minSdkVersion 26
         targetSdkVersion 34
     }
     buildTypes {

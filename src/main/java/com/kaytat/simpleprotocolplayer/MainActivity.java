@@ -28,8 +28,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -509,35 +507,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       return NetworkConnection.NOT_CONNECTED;
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      NetworkCapabilities capabilities =
-          connectivityManager.getNetworkCapabilities(
-              connectivityManager.getActiveNetwork());
-      if (capabilities == null) {
-        return NetworkConnection.NOT_CONNECTED;
-      }
-      if (!capabilities.hasCapability(
-          NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-        return NetworkConnection.NOT_CONNECTED;
-      }
-      if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-        return NetworkConnection.WIFI_CONNECTED;
-      } else {
-        return NetworkConnection.NON_WIFI_CONNECTED;
-      }
+    NetworkCapabilities capabilities =
+        connectivityManager.getNetworkCapabilities(
+            connectivityManager.getActiveNetwork());
+    if (capabilities == null) {
+      return NetworkConnection.NOT_CONNECTED;
+    }
+    if (!capabilities.hasCapability(
+        NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+      return NetworkConnection.NOT_CONNECTED;
+    }
+    if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+      return NetworkConnection.WIFI_CONNECTED;
     } else {
-      NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-      if (networkInfo == null) {
-        return NetworkConnection.NOT_CONNECTED;
-      }
-      if (!networkInfo.isConnected()) {
-        return NetworkConnection.NOT_CONNECTED;
-      }
-      if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-        return NetworkConnection.WIFI_CONNECTED;
-      } else {
-        return NetworkConnection.NON_WIFI_CONNECTED;
-      }
+      return NetworkConnection.NON_WIFI_CONNECTED;
     }
   }
 }

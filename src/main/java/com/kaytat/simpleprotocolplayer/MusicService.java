@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.WifiLock;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
@@ -278,12 +277,9 @@ public class MusicService extends Service implements MusicFocusable {
   void setUpAsForeground(String text) {
     createNotificationChannel();
 
-    int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      flags |= PendingIntent.FLAG_IMMUTABLE;
-    }
     PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-        new Intent(getApplicationContext(), MainActivity.class), flags);
+        new Intent(getApplicationContext(), MainActivity.class),
+        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
     mNotification = new NotificationCompat.Builder(this,
         NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_stat_playing)
@@ -293,20 +289,16 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   private void createNotificationChannel() {
-    // Create the NotificationChannel, but only on API 26+ because
-    // the NotificationChannel class is new and not in the support library
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      int importance = NotificationManager.IMPORTANCE_DEFAULT;
-      NotificationChannel channel =
-          new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-              NOTIFICATION_CHANNEL_ID, importance);
-      channel.setSound(null, null);
-      // Register the channel with the system; you can't change the
-      // importance or other notification behaviors after this
-      NotificationManager notificationManager =
-          getSystemService(NotificationManager.class);
-      notificationManager.createNotificationChannel(channel);
-    }
+    int importance = NotificationManager.IMPORTANCE_DEFAULT;
+    NotificationChannel channel =
+        new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+            NOTIFICATION_CHANNEL_ID, importance);
+    channel.setSound(null, null);
+    // Register the channel with the system; you can't change the
+    // importance or other notification behaviors after this
+    NotificationManager notificationManager =
+        getSystemService(NotificationManager.class);
+    notificationManager.createNotificationChannel(channel);
   }
 
   @Override

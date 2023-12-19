@@ -19,9 +19,7 @@ package com.kaytat.simpleprotocolplayer;
 
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
@@ -84,31 +82,21 @@ public class WorkerThreadPair {
 
   static AudioTrack buildAudioTrack(int sampleRate, int channelMask,
       int audioTrackMinBuffer, boolean usePerformanceMode) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      // PERFORMANCE_MODE_LOW_LATENCY was only added in O (API 26).
-      // AudioManager.STREAM_MUSIC has been deprecated in favor of
-      // AudioAttributes
-      AudioTrack.Builder audioTrackBuilder =
-          new AudioTrack.Builder().setAudioAttributes(
-                  new AudioAttributes.Builder().setUsage(
-                          AudioAttributes.USAGE_MEDIA)
-                      .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-              .setAudioFormat(new AudioFormat.Builder().setEncoding(
-                      AudioFormat.ENCODING_PCM_16BIT).setSampleRate(sampleRate)
-                  .setChannelMask(channelMask).build())
-              .setBufferSizeInBytes(audioTrackMinBuffer)
-              .setTransferMode(AudioTrack.MODE_STREAM);
-      if (usePerformanceMode) {
-        audioTrackBuilder.setPerformanceMode(
-            AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
-      }
-      return audioTrackBuilder.build();
-
-    } else {
-      return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelMask,
-          AudioFormat.ENCODING_PCM_16BIT, audioTrackMinBuffer,
-          AudioTrack.MODE_STREAM);
+    AudioTrack.Builder audioTrackBuilder =
+        new AudioTrack.Builder().setAudioAttributes(
+                new AudioAttributes.Builder().setUsage(
+                        AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+            .setAudioFormat(new AudioFormat.Builder().setEncoding(
+                    AudioFormat.ENCODING_PCM_16BIT).setSampleRate(sampleRate)
+                .setChannelMask(channelMask).build())
+            .setBufferSizeInBytes(audioTrackMinBuffer)
+            .setTransferMode(AudioTrack.MODE_STREAM);
+    if (usePerformanceMode) {
+      audioTrackBuilder.setPerformanceMode(
+          AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
     }
+    return audioTrackBuilder.build();
   }
 
   static int calcBytesPerAudioPacket(int sampleRate, boolean stereo,
