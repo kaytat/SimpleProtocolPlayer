@@ -72,8 +72,7 @@ public class MusicService extends Service implements MusicFocusable {
   // are allowed to reduce the volume instead of stopping playback.
   public static final float DUCK_VOLUME = 0.1f;
 
-  private final ArrayList<WorkerThreadPair> workers =
-      new ArrayList<>();
+  private final ArrayList<WorkerThreadPair> workers = new ArrayList<>();
 
   // our AudioFocusHelper object, if it's available (it's available on SDK
   // level >= 8) If not available, this will be null. Always check for null
@@ -117,14 +116,13 @@ public class MusicService extends Service implements MusicFocusable {
 
     // Create the Wifi lock (this does not acquire the lock, this just
     // creates it)
-    mWifiLock = ((WifiManager)
-        getApplicationContext().getSystemService(Context.WIFI_SERVICE))
-        .createWifiLock(WifiManager.WIFI_MODE_FULL, "myLock");
+    mWifiLock = ((WifiManager) getApplicationContext().getSystemService(
+        Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL,
+        "myLock");
 
     // create the Audio Focus Helper, if the Audio Focus feature is
     // available (SDK 8 or above)
-    mAudioFocusHelper =
-        new AudioFocusHelper(getApplicationContext(), this);
+    mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
   }
 
   /**
@@ -156,8 +154,7 @@ public class MusicService extends Service implements MusicFocusable {
       stopWorkers();
     }
 
-    playStream(
-        i.getStringExtra(DATA_IP_ADDRESS),
+    playStream(i.getStringExtra(DATA_IP_ADDRESS),
         i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
         i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
         i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
@@ -209,15 +206,15 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   void tryToGetAudioFocus() {
-    if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
-        && mAudioFocusHelper.requestFocus()) {
+    if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null &&
+        mAudioFocusHelper.requestFocus()) {
       mAudioFocus = AudioFocus.Focused;
     }
   }
 
   void giveUpAudioFocus() {
-    if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
-        && mAudioFocusHelper.abandonFocus()) {
+    if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null &&
+        mAudioFocusHelper.abandonFocus()) {
       mAudioFocus = AudioFocus.NoFocusNoDuck;
     }
   }
@@ -253,22 +250,16 @@ public class MusicService extends Service implements MusicFocusable {
   /**
    * Play the stream using the given IP address and port
    */
-  void playStream(
-      String serverAddr,
-      int serverPort,
-      int sample_rate,
-      boolean stereo,
-      int buffer_ms,
-      boolean retry,
-      boolean usePerformanceMode,
+  void playStream(String serverAddr, int serverPort, int sample_rate,
+      boolean stereo, int buffer_ms, boolean retry, boolean usePerformanceMode,
       boolean useMinBuffer) {
 
     mState = State.Stopped;
     relaxResources();
 
-    workers.add(new WorkerThreadPair(this, serverAddr, serverPort,
-        sample_rate, stereo, buffer_ms, retry, usePerformanceMode,
-        useMinBuffer));
+    workers.add(
+        new WorkerThreadPair(this, serverAddr, serverPort, sample_rate, stereo,
+            buffer_ms, retry, usePerformanceMode, useMinBuffer));
 
     mWifiLock.acquire();
 
@@ -292,16 +283,12 @@ public class MusicService extends Service implements MusicFocusable {
       flags |= PendingIntent.FLAG_IMMUTABLE;
     }
     PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-        new Intent(getApplicationContext(), MainActivity.class),
-        flags);
+        new Intent(getApplicationContext(), MainActivity.class), flags);
 
-    mNotification =
-        new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_playing)
-            .setOngoing(true)
-            .setContentTitle(NOTIFICATION_CHANNEL_ID)
-            .setContentText(text)
-            .setContentIntent(pi).build();
+    mNotification = new NotificationCompat.Builder(this,
+        NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_stat_playing)
+        .setOngoing(true).setContentTitle(NOTIFICATION_CHANNEL_ID)
+        .setContentText(text).setContentIntent(pi).build();
     startForeground(NOTIFICATION_ID, mNotification);
   }
 
@@ -312,8 +299,7 @@ public class MusicService extends Service implements MusicFocusable {
       int importance = NotificationManager.IMPORTANCE_DEFAULT;
       NotificationChannel channel =
           new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-              NOTIFICATION_CHANNEL_ID,
-              importance);
+              NOTIFICATION_CHANNEL_ID, importance);
       channel.setSound(null, null);
       // Register the channel with the system; you can't change the
       // importance or other notification behaviors after this

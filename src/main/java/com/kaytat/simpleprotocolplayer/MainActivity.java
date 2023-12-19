@@ -85,9 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   Button stopButton;
 
   private enum NetworkConnection {
-    NOT_CONNECTED,
-    WIFI_CONNECTED,
-    NON_WIFI_CONNECTED
+    NOT_CONNECTED, WIFI_CONNECTED, NON_WIFI_CONNECTED
   }
 
   /**
@@ -125,13 +123,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       audioPortText.showDropDown();
       return false;
     });
-    audioPortText
-        .setOnFocusChangeListener((v, hasFocus) -> {
-          if (hasFocus && ipAddrText.getAdapter() != null) {
-            audioPortText.showDropDown();
-          }
+    audioPortText.setOnFocusChangeListener((v, hasFocus) -> {
+      if (hasFocus && ipAddrText.getAdapter() != null) {
+        audioPortText.showDropDown();
+      }
 
-        });
+    });
   }
 
   /**
@@ -513,13 +510,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      NetworkCapabilities capabilities = connectivityManager
-          .getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      NetworkCapabilities capabilities =
+          connectivityManager.getNetworkCapabilities(
+              connectivityManager.getActiveNetwork());
       if (capabilities == null) {
         return NetworkConnection.NOT_CONNECTED;
       }
-      if (!capabilities
-          .hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+      if (!capabilities.hasCapability(
+          NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
         return NetworkConnection.NOT_CONNECTED;
       }
       if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {

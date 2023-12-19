@@ -51,8 +51,8 @@ public class WorkerThreadPair {
       sampleRate = MusicService.DEFAULT_SAMPLE_RATE;
     }
 
-    int audioTrackMinBuffer = AudioTrack
-        .getMinBufferSize(sampleRate, channelMask,
+    int audioTrackMinBuffer =
+        AudioTrack.getMinBufferSize(sampleRate, channelMask,
             AudioFormat.ENCODING_PCM_16BIT);
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
@@ -88,27 +88,25 @@ public class WorkerThreadPair {
       // PERFORMANCE_MODE_LOW_LATENCY was only added in O (API 26).
       // AudioManager.STREAM_MUSIC has been deprecated in favor of
       // AudioAttributes
-      AudioTrack.Builder audioTrackBuilder = new AudioTrack.Builder()
-          .setAudioAttributes(new AudioAttributes.Builder()
-              .setUsage(AudioAttributes.USAGE_MEDIA)
-              .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-              .build())
-          .setAudioFormat(new AudioFormat.Builder()
-              .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-              .setSampleRate(sampleRate)
-              .setChannelMask(channelMask)
-              .build())
-          .setBufferSizeInBytes(audioTrackMinBuffer)
-          .setTransferMode(AudioTrack.MODE_STREAM);
+      AudioTrack.Builder audioTrackBuilder =
+          new AudioTrack.Builder().setAudioAttributes(
+                  new AudioAttributes.Builder().setUsage(
+                          AudioAttributes.USAGE_MEDIA)
+                      .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
+              .setAudioFormat(new AudioFormat.Builder().setEncoding(
+                      AudioFormat.ENCODING_PCM_16BIT).setSampleRate(sampleRate)
+                  .setChannelMask(channelMask).build())
+              .setBufferSizeInBytes(audioTrackMinBuffer)
+              .setTransferMode(AudioTrack.MODE_STREAM);
       if (usePerformanceMode) {
-        audioTrackBuilder
-            .setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
+        audioTrackBuilder.setPerformanceMode(
+            AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
       }
       return audioTrackBuilder.build();
 
     } else {
-      return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate,
-          channelMask, AudioFormat.ENCODING_PCM_16BIT, audioTrackMinBuffer,
+      return new AudioTrack(AudioManager.STREAM_MUSIC, sampleRate, channelMask,
+          AudioFormat.ENCODING_PCM_16BIT, audioTrackMinBuffer,
           AudioTrack.MODE_STREAM);
     }
   }
@@ -184,8 +182,8 @@ public class WorkerThreadPair {
     // Broke out of loop unexpectedly. Shutdown.
     Handler h = new Handler(musicService.getMainLooper());
     Runnable r = () -> {
-      Toast.makeText(musicService.getApplicationContext(),
-          "Unable to stream", Toast.LENGTH_SHORT).show();
+      Toast.makeText(musicService.getApplicationContext(), "Unable to stream",
+          Toast.LENGTH_SHORT).show();
       musicService.processStopRequest();
     };
     h.post(r);
