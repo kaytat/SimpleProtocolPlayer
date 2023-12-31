@@ -68,6 +68,16 @@
         <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
       </intent-filter>
     </service>
+
+    <service
+      android:name=".BackgroundMusicService"
+      android:foregroundServiceType="mediaPlayback"
+      android:exported="true">
+      <intent-filter>
+        <action android:name="androidx.media3.session.MediaSessionService" />
+      </intent-filter>
+    </service>
+
   </application>
 
 </manifest>
