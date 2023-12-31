@@ -73,9 +73,7 @@ public class MusicService extends Service implements MusicFocusable {
 
   private final ArrayList<WorkerThreadPair> workers = new ArrayList<>();
 
-  // our AudioFocusHelper object, if it's available (it's available on SDK
-  // level >= 8) If not available, this will be null. Always check for null
-  // before using!
+  // AudioFocusHelper object
   AudioFocusHelper mAudioFocusHelper = null;
 
   // indicates the state our service:
@@ -119,8 +117,6 @@ public class MusicService extends Service implements MusicFocusable {
         Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL,
         "myLock");
 
-    // create the Audio Focus Helper, if the Audio Focus feature is
-    // available (SDK 8 or above)
     mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
   }
 
@@ -237,11 +233,11 @@ public class MusicService extends Service implements MusicFocusable {
 
     for (WorkerThreadPair it : workers) {
       if (mAudioFocus == AudioFocus.NoFocusCanDuck) {
-        it.audioTrack.setStereoVolume(DUCK_VOLUME, DUCK_VOLUME); // we'll be
+        it.audioTrack.setVolume(DUCK_VOLUME); // we'll be
         // relatively
         // quiet
       } else {
-        it.audioTrack.setStereoVolume(1.0f, 1.0f); // we can be loud
+        it.audioTrack.setVolume(1.0f); // we can be loud
       }
     }
   }
