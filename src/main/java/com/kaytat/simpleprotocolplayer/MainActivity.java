@@ -460,13 +460,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
       // Save current settings
       savePrefs();
-      startService(i);
+      startMusicService(i);
     } else if (target == stopButton) {
       hideKb();
 
       Intent i = new Intent(MusicService.ACTION_STOP);
       i.setPackage(getPackageName());
-      startService(i);
+      startMusicService(i);
     }
   }
 
@@ -503,6 +503,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       return NetworkConnection.WIFI_CONNECTED;
     } else {
       return NetworkConnection.NON_WIFI_CONNECTED;
+    }
+  }
+
+  private void startMusicService(Intent i) {
+    boolean useMedia3 = ((CheckBox) findViewById(R.id.checkBoxUseMedia3)).isChecked();
+    if (useMedia3) {
+    } else {
+      startService(i);
     }
   }
 }
