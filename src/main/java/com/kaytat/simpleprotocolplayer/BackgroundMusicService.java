@@ -1,6 +1,7 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.content.Intent;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.media3.common.Player;
@@ -19,7 +20,7 @@ public class BackgroundMusicService extends MediaSessionService {
   }
 
   @Nullable
-  public MediaSession onGetSession(MediaSession.ControllerInfo controllerInfo) {
+  public MediaSession onGetSession(@NonNull MediaSession.ControllerInfo controllerInfo) {
     return mediaSession;
   }
 

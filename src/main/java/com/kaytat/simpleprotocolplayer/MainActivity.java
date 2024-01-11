@@ -22,6 +22,7 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -47,6 +48,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.session.MediaController;
+import androidx.media3.session.SessionToken;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -130,6 +135,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
             audioPortText.showDropDown();
           }
         });
+
+    initBackgroundMusicService();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    MediaController.releaseFuture(controllerFuture);
   }
 
   /**
@@ -508,9 +521,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   private void startMusicService(Intent i) {
     boolean useMedia3 = ((CheckBox) findViewById(R.id.checkBoxUseMedia3)).isChecked();
-    if (useMedia3) {
-    } else {
+    if (!useMedia3) {
       startService(i);
     }
+  }
+
+  ListenableFuture<MediaController> controllerFuture;
+
+  private void initBackgroundMusicService() {
+    SessionToken sessionToken =
+        new SessionToken(this, new ComponentName(this, BackgroundMusicService.class));
+    controllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
+    controllerFuture.addListener(
+        () -> {
+          // MediaController is available here with controllerFuture.get()
+        },
+        MoreExecutors.directExecutor());
   }
 }
