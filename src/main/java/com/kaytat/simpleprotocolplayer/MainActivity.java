@@ -55,6 +55,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.json.JSONArray;
@@ -373,6 +374,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   public void onClick(View target) {
+    boolean useMedia3 = ((CheckBox) findViewById(R.id.checkBoxUseMedia3)).isChecked();
+
     // Send the correct intent to the MusicService, according to the
     // button that was clicked
     if (target == playButton) {
@@ -393,8 +396,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       hideKb();
 
       // Get the IP address and port and put it in the intent
-      Intent i = new Intent(MusicService.ACTION_PLAY);
-      i.setPackage(getPackageName());
+      Bundle bundle = new Bundle();
       String ipAddr = ipAddrText.getText().toString();
       String portStr = audioPortText.getText().toString();
 
@@ -408,7 +410,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return;
       }
       Log.d(TAG, "ip:" + ipAddr);
-      i.putExtra(MusicService.DATA_IP_ADDRESS, ipAddr);
+      bundle.putString(MusicService.DATA_IP_ADDRESS, ipAddr);
 
       int audioPort;
       try {
@@ -419,7 +421,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         return;
       }
       Log.d(TAG, "port:" + audioPort);
-      i.putExtra(MusicService.DATA_AUDIO_PORT, audioPort);
+      bundle.putInt(MusicService.DATA_AUDIO_PORT, audioPort);
 
       // Extract sample rate
       Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
@@ -428,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       try {
         sampleRate = Integer.parseInt(rateSplit[0]);
         Log.i(TAG, "rate:" + sampleRate);
-        i.putExtra(MusicService.DATA_SAMPLE_RATE, sampleRate);
+        bundle.putInt(MusicService.DATA_SAMPLE_RATE, sampleRate);
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid rate:" + nfe);
         Toast.makeText(getApplicationContext(), "Invalid rate", Toast.LENGTH_SHORT).show();
@@ -440,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       String stereoSettingString = String.valueOf(stereoSpinner.getSelectedItem());
       String stereoKey = getResources().getString(R.string.stereoKey);
       stereo = stereoSettingString.contains(stereoKey);
-      i.putExtra(MusicService.DATA_STEREO, stereo);
+      bundle.putBoolean(MusicService.DATA_STEREO, stereo);
       Log.i(TAG, "stereo:" + stereo);
 
       // Get the latest buffer entry
@@ -449,7 +451,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       try {
         bufferMs = Integer.parseInt(bufferMsString);
         Log.d(TAG, "buffer ms:" + bufferMs);
-        i.putExtra(MusicService.DATA_BUFFER_MS, bufferMs);
+        bundle.putInt(MusicService.DATA_BUFFER_MS, bufferMs);
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid buffer ms:" + nfe);
         Toast.makeText(getApplicationContext(), "Invalid buffer ms", Toast.LENGTH_SHORT).show();
@@ -459,27 +461,24 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       // Get the retry checkbox
       retry = ((CheckBox) findViewById(R.id.checkBoxRetry)).isChecked();
       Log.d(TAG, "retry:" + retry);
-      i.putExtra(MusicService.DATA_RETRY, retry);
+      bundle.putBoolean(MusicService.DATA_RETRY, retry);
 
       // Get the usePerformanceMode checkbox
       usePerformanceMode = ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).isChecked();
       Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
-      i.putExtra(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
+      bundle.putBoolean(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
 
       // Get the useMinBuffer checkbox
       useMinBuffer = ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).isChecked();
       Log.d(TAG, "useMinBuffer:" + useMinBuffer);
-      i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
+      bundle.putBoolean(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 
       // Save current settings
       savePrefs();
-      startMusicService(i);
+      startMusicService(useMedia3, bundle);
     } else if (target == stopButton) {
       hideKb();
-
-      Intent i = new Intent(MusicService.ACTION_STOP);
-      i.setPackage(getPackageName());
-      startMusicService(i);
+      stopMusicService(useMedia3);
     }
   }
 
@@ -519,9 +518,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     }
   }
 
-  private void startMusicService(Intent i) {
-    boolean useMedia3 = ((CheckBox) findViewById(R.id.checkBoxUseMedia3)).isChecked();
-    if (!useMedia3) {
+  private void startMusicService(boolean useMedia3, Bundle bundle) {
+    if (useMedia3) {
+    } else {
+      Intent i = new Intent(MusicService.ACTION_PLAY);
+      i.setPackage(getPackageName()).putExtras(bundle);
+      startService(i);
+    }
+  }
+
+  private void stopMusicService(boolean useMedia3) {
+    if (useMedia3) {
+    } else {
+      Intent i = new Intent(MusicService.ACTION_STOP);
+      i.setPackage(getPackageName());
       startService(i);
     }
   }
