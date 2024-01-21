@@ -520,6 +520,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   private void startMusicService(boolean useMedia3, Bundle bundle) {
     if (useMedia3) {
+      try {
+        controllerFuture.get().prepare();
+      } catch (Exception e) {
+        Log.e(TAG, "startMusicService:media3 exception", e);
+      }
     } else {
       Intent i = new Intent(MusicService.ACTION_PLAY);
       i.setPackage(getPackageName()).putExtras(bundle);
