@@ -29,6 +29,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,6 +49,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.media3.common.MediaItem;
 import androidx.media3.session.MediaController;
 import androidx.media3.session.SessionToken;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -55,7 +57,6 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.json.JSONArray;
@@ -521,7 +522,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   private void startMusicService(boolean useMedia3, Bundle bundle) {
     if (useMedia3) {
       try {
+        MediaItem mediaItem =
+            MediaItem.fromUri(
+                new Uri.Builder().path(bundle.getString(MusicService.DATA_IP_ADDRESS)).build());
+        controllerFuture.get().setMediaItem(mediaItem);
         controllerFuture.get().prepare();
+        controllerFuture.get().play();
       } catch (Exception e) {
         Log.e(TAG, "startMusicService:media3 exception", e);
       }
@@ -534,6 +540,11 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
   private void stopMusicService(boolean useMedia3) {
     if (useMedia3) {
+      try {
+        controllerFuture.get().stop();
+      } catch (Exception e) {
+        Log.e(TAG, "stopMusicService:media3 exception", e);
+      }
     } else {
       Intent i = new Intent(MusicService.ACTION_STOP);
       i.setPackage(getPackageName());
