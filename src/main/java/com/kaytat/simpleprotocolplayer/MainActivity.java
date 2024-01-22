@@ -524,7 +524,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       try {
         MediaItem mediaItem =
             MediaItem.fromUri(
-                new Uri.Builder().path(bundle.getString(MusicService.DATA_IP_ADDRESS)).build());
+                new Uri.Builder()
+                    .encodedAuthority(
+                        bundle.getString(MusicService.DATA_IP_ADDRESS)
+                            + ":"
+                            + bundle.getInt(MusicService.DATA_AUDIO_PORT))
+                    .build());
         controllerFuture.get().setMediaItem(mediaItem);
         controllerFuture.get().prepare();
         controllerFuture.get().play();
