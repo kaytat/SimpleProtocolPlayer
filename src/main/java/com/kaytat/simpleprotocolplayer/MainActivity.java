@@ -523,17 +523,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   private void startMusicService(boolean useMedia3, Bundle bundle) {
     if (useMedia3) {
       try {
-        String encodedAuthority =
-            bundle.getString(MusicService.DATA_IP_ADDRESS)
-                + ":"
-                + bundle.getInt(MusicService.DATA_AUDIO_PORT);
         MediaItem mediaItem =
             new MediaItem.Builder()
-                .setUri(new Uri.Builder().encodedAuthority(encodedAuthority).build())
+                .setUri(
+                    new Uri.Builder()
+                        .encodedAuthority(
+                            bundle.getString(MusicService.DATA_IP_ADDRESS)
+                                + ":"
+                                + bundle.getInt(MusicService.DATA_AUDIO_PORT))
+                        .build())
                 .setMediaMetadata(
                     new MediaMetadata.Builder()
-                        .setTitle("Streaming from " + encodedAuthority)
+                        .setTitle(
+                            "Streaming from " + bundle.getString(MusicService.DATA_IP_ADDRESS))
                         .setDescription("SPP")
+                        .setExtras(bundle)
                         .build())
                 .build();
         controllerFuture.get().setMediaItem(mediaItem);

@@ -66,9 +66,10 @@ public class SppPlayer extends SimpleBasePlayer {
       return Futures.immediateVoidFuture();
     }
     MediaItem mediaItem = mediaItems.get(0);
-
     Log.d(TAG, "mediaItem:uri:" + mediaItem.localConfiguration.uri);
-
+    for (String key : mediaItem.mediaMetadata.extras.keySet()) {
+      Log.d(TAG, "mediaItem:" + key + ":" + mediaItem.mediaMetadata.extras.get(key));
+    }
     state =
         state
             .buildUpon()
