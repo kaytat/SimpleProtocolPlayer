@@ -16,7 +16,7 @@ public class BackgroundMusicService extends MediaSessionService {
   @Override
   public void onCreate() {
     super.onCreate();
-    mediaSession = new MediaSession.Builder(this, new SppPlayer(getMainLooper())).build();
+    mediaSession = new MediaSession.Builder(this, new SppPlayer(this)).build();
   }
 
   @Nullable

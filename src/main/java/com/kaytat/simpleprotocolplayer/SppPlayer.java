@@ -1,6 +1,6 @@
 package com.kaytat.simpleprotocolplayer;
 
-import android.os.Looper;
+import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.SimpleBasePlayer;
@@ -15,8 +15,13 @@ import java.util.List;
 public class SppPlayer extends SimpleBasePlayer {
   private static final String TAG = "SppPlayer";
 
-  protected SppPlayer(Looper applicationLooper) {
-    super(applicationLooper);
+  private final WifiLockManager wifiLockManager;
+
+
+  protected SppPlayer(Context context) {
+    super(context.getMainLooper());
+    wifiLockManager = new WifiLockManager(context);
+    wifiLockManager.setEnabled(true);
   }
 
   State state =
@@ -45,6 +50,7 @@ public class SppPlayer extends SimpleBasePlayer {
   protected ListenableFuture<?> handlePrepare() {
     Log.d(TAG, "handlePrepare");
     state = state.buildUpon().setPlaybackState(STATE_READY).build();
+    wifiLockManager.setStayAwake(true);
     return Futures.immediateVoidFuture();
   }
 
@@ -85,6 +91,7 @@ public class SppPlayer extends SimpleBasePlayer {
   protected ListenableFuture<?> handleStop() {
     Log.d(TAG, "handleStop");
     state = state.buildUpon().setPlaybackState(STATE_IDLE).build();
+    wifiLockManager.setStayAwake(false);
     return Futures.immediateVoidFuture();
   }
 }

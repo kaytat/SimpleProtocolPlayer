@@ -22,10 +22,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
-import android.net.wifi.WifiManager.WifiLock;
 import android.os.IBinder;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
@@ -97,7 +94,7 @@ public class MusicService extends Service implements MusicFocusable {
 
   // Wifi lock that we hold when streaming files from the internet, in
   // order to prevent the device from shutting off the Wifi radio
-  WifiLock mWifiLock;
+  WifiLockManager wifiLockManager;
 
   // The ID we use for the notification (the onscreen alert that appears at
   // the notification area at the top of the screen as an icon -- and as
@@ -113,9 +110,8 @@ public class MusicService extends Service implements MusicFocusable {
 
     // Create the Wifi lock (this does not acquire the lock, this just
     // creates it)
-    mWifiLock = ((WifiManager) getApplicationContext().getSystemService(
-        Context.WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL,
-        "myLock");
+    wifiLockManager = new WifiLockManager(this);
+    wifiLockManager.setEnabled(true);
 
     mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
   }
@@ -183,12 +179,9 @@ public class MusicService extends Service implements MusicFocusable {
     stopForeground(true);
 
     // we can also release the Wifi lock, if we're holding it
-    if (mWifiLock.isHeld()) {
-      mWifiLock.release();
-    }
+    wifiLockManager.setStayAwake(false);
 
     // Wait for worker thread to stop if running
-
     stopWorkers();
   }
 
@@ -256,7 +249,7 @@ public class MusicService extends Service implements MusicFocusable {
         new WorkerThreadPair(this, serverAddr, serverPort, sample_rate, stereo,
             buffer_ms, retry, usePerformanceMode, useMinBuffer));
 
-    mWifiLock.acquire();
+    wifiLockManager.setStayAwake(true);
 
     mState = State.Playing;
     configVolume();
