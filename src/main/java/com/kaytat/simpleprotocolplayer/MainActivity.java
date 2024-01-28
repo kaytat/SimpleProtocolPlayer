@@ -50,6 +50,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
 import androidx.media3.session.MediaController;
 import androidx.media3.session.SessionToken;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -522,14 +523,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   private void startMusicService(boolean useMedia3, Bundle bundle) {
     if (useMedia3) {
       try {
+        String encodedAuthority =
+            bundle.getString(MusicService.DATA_IP_ADDRESS)
+                + ":"
+                + bundle.getInt(MusicService.DATA_AUDIO_PORT);
         MediaItem mediaItem =
-            MediaItem.fromUri(
-                new Uri.Builder()
-                    .encodedAuthority(
-                        bundle.getString(MusicService.DATA_IP_ADDRESS)
-                            + ":"
-                            + bundle.getInt(MusicService.DATA_AUDIO_PORT))
-                    .build());
+            new MediaItem.Builder()
+                .setUri(new Uri.Builder().encodedAuthority(encodedAuthority).build())
+                .setMediaMetadata(
+                    new MediaMetadata.Builder()
+                        .setTitle("Streaming from " + encodedAuthority)
+                        .setDescription("SPP")
+                        .build())
+                .build();
         controllerFuture.get().setMediaItem(mediaItem);
         controllerFuture.get().prepare();
         controllerFuture.get().play();

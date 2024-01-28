@@ -23,11 +23,12 @@ public class SppPlayer extends SimpleBasePlayer {
       new State.Builder()
           .setAvailableCommands(
               new Commands.Builder()
+                  .add(COMMAND_GET_METADATA)
+                  .add(COMMAND_GET_CURRENT_MEDIA_ITEM)
                   .add(COMMAND_PLAY_PAUSE)
-                  .add(COMMAND_STOP)
                   .add(COMMAND_PREPARE)
                   .add(COMMAND_SET_MEDIA_ITEM)
-                  .add(COMMAND_GET_CURRENT_MEDIA_ITEM)
+                  .add(COMMAND_STOP)
                   .build())
           .setPlaybackState(STATE_IDLE)
           .build();
@@ -43,6 +44,7 @@ public class SppPlayer extends SimpleBasePlayer {
   @Override
   protected ListenableFuture<?> handlePrepare() {
     Log.d(TAG, "handlePrepare");
+    state = state.buildUpon().setPlaybackState(STATE_READY).build();
     return Futures.immediateVoidFuture();
   }
 
@@ -51,7 +53,6 @@ public class SppPlayer extends SimpleBasePlayer {
   protected ListenableFuture<?> handleSetPlayWhenReady(boolean playWhenReady) {
     Log.d(TAG, "handleSetPlayWhenReady");
     Log.i(TAG, "handleSetPlayWhenReady:" + playWhenReady);
-    state = state.buildUpon().setPlaybackState(STATE_READY).build();
     return Futures.immediateVoidFuture();
   }
 
@@ -61,18 +62,19 @@ public class SppPlayer extends SimpleBasePlayer {
       List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
     Log.d(TAG, "handleSetMediaItems");
     if (mediaItems.size() != 1) {
-      Log.w(TAG, "handleSetMediaItems:size not 1");
+      Log.w(TAG, "handleSetMediaItems size not 1");
       return Futures.immediateVoidFuture();
     }
-    Log.d(TAG, "mediaItem:uri:" + mediaItems.get(0).localConfiguration.uri);
+    MediaItem mediaItem = mediaItems.get(0);
+
+    Log.d(TAG, "mediaItem:uri:" + mediaItem.localConfiguration.uri);
+
     state =
         state
             .buildUpon()
             .setPlaylist(
                 ImmutableList.of(
-                    new MediaItemData.Builder(mediaItems.get(0).mediaId)
-                        .setMediaItem(mediaItems.get(0))
-                        .build()))
+                    new MediaItemData.Builder(mediaItem).setMediaItem(mediaItem).build()))
             .build();
     return Futures.immediateVoidFuture();
   }
