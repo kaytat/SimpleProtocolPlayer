@@ -17,7 +17,6 @@ public class SppPlayer extends SimpleBasePlayer {
 
   private final WifiLockManager wifiLockManager;
 
-
   protected SppPlayer(Context context) {
     super(context.getMainLooper());
     wifiLockManager = new WifiLockManager(context);

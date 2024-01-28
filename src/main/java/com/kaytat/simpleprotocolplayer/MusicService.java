@@ -29,8 +29,8 @@ import androidx.core.app.NotificationCompat;
 import java.util.ArrayList;
 
 /**
- * Service that handles media playback. This is the Service through which we
- * perform all the media handling in our application.
+ * Service that handles media playback. This is the Service through which we perform all the media
+ * handling in our application.
  */
 public class MusicService extends Service implements MusicFocusable {
 
@@ -50,10 +50,8 @@ public class MusicService extends Service implements MusicFocusable {
   // convenience: what really defines the actions our service can handle
   // are the <action> tags in the <intent-filters> tag for our service in
   // AndroidManifest.xml.
-  public static final String ACTION_PLAY =
-      "com.kaytat.simpleprotocolplayer.action.PLAY";
-  public static final String ACTION_STOP =
-      "com.kaytat.simpleprotocolplayer.action.STOP";
+  public static final String ACTION_PLAY = "com.kaytat.simpleprotocolplayer.action.PLAY";
+  public static final String ACTION_STOP = "com.kaytat.simpleprotocolplayer.action.STOP";
 
   public static final String DATA_IP_ADDRESS = "ip_addr";
   public static final String DATA_AUDIO_PORT = "audio_port";
@@ -76,7 +74,7 @@ public class MusicService extends Service implements MusicFocusable {
   // indicates the state our service:
   enum State {
     Stopped, // media player is stopped and not prepared to play
-    Playing  // playback active (media player ready!)
+    Playing // playback active (media player ready!)
   }
 
   State mState = State.Stopped;
@@ -84,10 +82,10 @@ public class MusicService extends Service implements MusicFocusable {
   // do we have audio focus?
   // do we have audio focus?
   enum AudioFocus {
-    NoFocusNoDuck,    // we don't have audio focus, and can't duck
-    NoFocusCanDuck,   // we don't have focus, but can play at a low
+    NoFocusNoDuck, // we don't have audio focus, and can't duck
+    NoFocusCanDuck, // we don't have focus, but can play at a low
     // volume ("ducking")
-    Focused           // we have full audio focus
+    Focused // we have full audio focus
   }
 
   AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
@@ -117,10 +115,9 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   /**
-   * Called when we receive an Intent. When we receive an intent sent to us
-   * via startService(), this is the method that gets called. So here we
-   * react appropriately depending on the Intent's action, which specifies
-   * what is being requested of us.
+   * Called when we receive an Intent. When we receive an intent sent to us via startService(), this
+   * is the method that gets called. So here we react appropriately depending on the Intent's
+   * action, which specifies what is being requested of us.
    */
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
@@ -145,14 +142,14 @@ public class MusicService extends Service implements MusicFocusable {
       stopWorkers();
     }
 
-    playStream(i.getStringExtra(DATA_IP_ADDRESS),
+    playStream(
+        i.getStringExtra(DATA_IP_ADDRESS),
         i.getIntExtra(DATA_AUDIO_PORT, DEFAULT_AUDIO_PORT),
         i.getIntExtra(DATA_SAMPLE_RATE, DEFAULT_SAMPLE_RATE),
         i.getBooleanExtra(DATA_STEREO, DEFAULT_STEREO),
         i.getIntExtra(DATA_BUFFER_MS, DEFAULT_BUFFER_MS),
         i.getBooleanExtra(DATA_RETRY, DEFAULT_RETRY),
-        i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE,
-            DEFAULT_USE_PERFORMANCE_MODE),
+        i.getBooleanExtra(DATA_USE_PERFORMANCE_MODE, DEFAULT_USE_PERFORMANCE_MODE),
         i.getBooleanExtra(DATA_USE_MIN_BUFFER, DEFAULT_USE_MIN_BUFFER));
   }
 
@@ -170,9 +167,8 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   /**
-   * Releases resources used by the service for playback. This includes the
-   * "foreground service" status and notification, the wake locks and the
-   * AudioTrack
+   * Releases resources used by the service for playback. This includes the "foreground service"
+   * status and notification, the wake locks and the AudioTrack
    */
   void relaxResources() {
     // stop being a foreground service
@@ -194,23 +190,22 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   void tryToGetAudioFocus() {
-    if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null &&
-        mAudioFocusHelper.requestFocus()) {
+    if (mAudioFocus != AudioFocus.Focused
+        && mAudioFocusHelper != null
+        && mAudioFocusHelper.requestFocus()) {
       mAudioFocus = AudioFocus.Focused;
     }
   }
 
   void giveUpAudioFocus() {
-    if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null &&
-        mAudioFocusHelper.abandonFocus()) {
+    if (mAudioFocus == AudioFocus.Focused
+        && mAudioFocusHelper != null
+        && mAudioFocusHelper.abandonFocus()) {
       mAudioFocus = AudioFocus.NoFocusNoDuck;
     }
   }
 
-  /**
-   * Reconfigures AudioTrack according to audio focus settings and
-   * starts/restarts it.
-   */
+  /** Reconfigures AudioTrack according to audio focus settings and starts/restarts it. */
   void configVolume() {
     if (mAudioFocus == AudioFocus.NoFocusNoDuck) {
       // If we don't have audio focus and can't duck, we have to pause,
@@ -235,19 +230,31 @@ public class MusicService extends Service implements MusicFocusable {
     }
   }
 
-  /**
-   * Play the stream using the given IP address and port
-   */
-  void playStream(String serverAddr, int serverPort, int sample_rate,
-      boolean stereo, int buffer_ms, boolean retry, boolean usePerformanceMode,
+  /** Play the stream using the given IP address and port */
+  void playStream(
+      String serverAddr,
+      int serverPort,
+      int sample_rate,
+      boolean stereo,
+      int buffer_ms,
+      boolean retry,
+      boolean usePerformanceMode,
       boolean useMinBuffer) {
 
     mState = State.Stopped;
     relaxResources();
 
     workers.add(
-        new WorkerThreadPair(this, serverAddr, serverPort, sample_rate, stereo,
-            buffer_ms, retry, usePerformanceMode, useMinBuffer));
+        new WorkerThreadPair(
+            this,
+            serverAddr,
+            serverPort,
+            sample_rate,
+            stereo,
+            buffer_ms,
+            retry,
+            usePerformanceMode,
+            useMinBuffer));
 
     wifiLockManager.setStayAwake(true);
 
@@ -258,35 +265,39 @@ public class MusicService extends Service implements MusicFocusable {
   }
 
   /**
-   * Configures service as a foreground service. A foreground service is a
-   * service that's doing something the user is actively aware of (such as
-   * playing music), and must appear to the user as a notification. That's
-   * why we create the notification here.
+   * Configures service as a foreground service. A foreground service is a service that's doing
+   * something the user is actively aware of (such as playing music), and must appear to the user as
+   * a notification. That's why we create the notification here.
    */
   void setUpAsForeground(String text) {
     createNotificationChannel();
 
-    PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-        new Intent(getApplicationContext(), MainActivity.class),
-        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    PendingIntent pi =
+        PendingIntent.getActivity(
+            getApplicationContext(),
+            0,
+            new Intent(getApplicationContext(), MainActivity.class),
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-    mNotification = new NotificationCompat.Builder(this,
-        NOTIFICATION_CHANNEL_ID).setSmallIcon(R.drawable.ic_stat_playing)
-        .setOngoing(true).setContentTitle(NOTIFICATION_CHANNEL_ID)
-        .setContentText(text).setContentIntent(pi).build();
+    mNotification =
+        new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_stat_playing)
+            .setOngoing(true)
+            .setContentTitle(NOTIFICATION_CHANNEL_ID)
+            .setContentText(text)
+            .setContentIntent(pi)
+            .build();
     startForeground(NOTIFICATION_ID, mNotification);
   }
 
   private void createNotificationChannel() {
     int importance = NotificationManager.IMPORTANCE_DEFAULT;
     NotificationChannel channel =
-        new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_ID, importance);
+        new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_ID, importance);
     channel.setSound(null, null);
     // Register the channel with the system; you can't change the
     // importance or other notification behaviors after this
-    NotificationManager notificationManager =
-        getSystemService(NotificationManager.class);
+    NotificationManager notificationManager = getSystemService(NotificationManager.class);
     notificationManager.createNotificationChannel(channel);
   }
 
@@ -304,8 +315,7 @@ public class MusicService extends Service implements MusicFocusable {
   @Override
   public void onLostAudioFocus(boolean canDuck) {
     Log.i(TAG, "Lost audio focus: canDuck:" + canDuck);
-    mAudioFocus =
-        canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
+    mAudioFocus = canDuck ? AudioFocus.NoFocusCanDuck : AudioFocus.NoFocusNoDuck;
 
     // start/restart/pause media player with new focus settings
     if (mState == State.Playing) {
