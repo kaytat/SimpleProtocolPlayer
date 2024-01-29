@@ -32,7 +32,8 @@ import java.util.ArrayList;
  * Service that handles media playback. This is the Service through which we perform all the media
  * handling in our application.
  */
-public class MusicService extends Service implements MusicFocusable {
+public class MusicService extends Service
+    implements MusicFocusable, WorkerThreadPair.StopPlaybackCallback {
 
   // The tag we put on debug messages
   static final String TAG = "SimpleProtocol";
@@ -246,6 +247,7 @@ public class MusicService extends Service implements MusicFocusable {
     workers.add(
         new WorkerThreadPair(
             this,
+            this,
             serverAddr,
             serverPort,
             sample_rate,
@@ -333,5 +335,9 @@ public class MusicService extends Service implements MusicFocusable {
   @Override
   public IBinder onBind(Intent arg0) {
     return null;
+  }
+
+  public void stopPlayback() {
+    processStopRequest();
   }
 }

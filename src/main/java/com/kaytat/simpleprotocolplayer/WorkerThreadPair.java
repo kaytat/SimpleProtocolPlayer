@@ -17,6 +17,7 @@
 
 package com.kaytat.simpleprotocolplayer;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
@@ -31,14 +32,22 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class WorkerThreadPair {
 
+  interface StopPlaybackCallback {
+    void stopPlayback();
+  }
+
   private static final String TAG = WorkerThreadPair.class.getSimpleName();
 
   private final BufferToAudioTrackThread audioThread;
   private final NetworkReadThread networkThread;
+  private final Context context;
+  private final StopPlaybackCallback stopPlaybackCallback;
+
   final AudioTrack audioTrack;
 
   public WorkerThreadPair(
-      MusicService musicService,
+      Context context,
+      StopPlaybackCallback stopPlaybackCallback,
       String serverAddr,
       int serverPort,
       int sampleRate,
@@ -47,7 +56,8 @@ public class WorkerThreadPair {
       boolean retry,
       boolean usePerformanceMode,
       boolean useMinBuffer) {
-    this.musicService = musicService;
+    this.context = context;
+    this.stopPlaybackCallback = stopPlaybackCallback;
     int channelMask = stereo ? AudioFormat.CHANNEL_OUT_STEREO : AudioFormat.CHANNEL_OUT_MONO;
 
     // Sanitize input, just in case
@@ -165,17 +175,14 @@ public class WorkerThreadPair {
     }
   }
 
-  private final MusicService musicService;
-
   public void brokenShutdown() {
     // Broke out of loop unexpectedly. Shutdown.
-    Handler h = new Handler(musicService.getMainLooper());
+    Handler h = new Handler(context.getMainLooper());
     Runnable r =
         () -> {
-          Toast.makeText(
-                  musicService.getApplicationContext(), "Unable to stream", Toast.LENGTH_SHORT)
+          Toast.makeText(context.getApplicationContext(), "Unable to stream", Toast.LENGTH_SHORT)
               .show();
-          musicService.processStopRequest();
+          stopPlaybackCallback.stopPlayback();
         };
     h.post(r);
   }
