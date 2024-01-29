@@ -26,8 +26,8 @@ import android.widget.Toast;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * group everything belongs a stream together, makes multi stream easier
- * including NetworkReadThread BufferToAudioTrackThread and AudioTrack
+ * group everything belongs a stream together, makes multi stream easier including NetworkReadThread
+ * BufferToAudioTrackThread and AudioTrack
  */
 public class WorkerThreadPair {
 
@@ -37,12 +37,18 @@ public class WorkerThreadPair {
   private final NetworkReadThread networkThread;
   final AudioTrack audioTrack;
 
-  public WorkerThreadPair(MusicService musicService, String serverAddr,
-      int serverPort, int sampleRate, boolean stereo, int requestedBufferMs,
-      boolean retry, boolean usePerformanceMode, boolean useMinBuffer) {
+  public WorkerThreadPair(
+      MusicService musicService,
+      String serverAddr,
+      int serverPort,
+      int sampleRate,
+      boolean stereo,
+      int requestedBufferMs,
+      boolean retry,
+      boolean usePerformanceMode,
+      boolean useMinBuffer) {
     this.musicService = musicService;
-    int channelMask =
-        stereo ? AudioFormat.CHANNEL_OUT_STEREO : AudioFormat.CHANNEL_OUT_MONO;
+    int channelMask = stereo ? AudioFormat.CHANNEL_OUT_STEREO : AudioFormat.CHANNEL_OUT_MONO;
 
     // Sanitize input, just in case
     if (sampleRate <= 0) {
@@ -50,57 +56,56 @@ public class WorkerThreadPair {
     }
 
     int audioTrackMinBuffer =
-        AudioTrack.getMinBufferSize(sampleRate, channelMask,
-            AudioFormat.ENCODING_PCM_16BIT);
+        AudioTrack.getMinBufferSize(sampleRate, channelMask, AudioFormat.ENCODING_PCM_16BIT);
     Log.d(TAG, "audioTrackMinBuffer:" + audioTrackMinBuffer);
 
     if (useMinBuffer) {
-      bytesPerAudioPacket =
-          calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
+      bytesPerAudioPacket = calcMinBytesPerAudioPacket(stereo, audioTrackMinBuffer);
     } else {
       if (requestedBufferMs <= 5) {
         requestedBufferMs = MusicService.DEFAULT_BUFFER_MS;
       }
-      bytesPerAudioPacket =
-          calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
+      bytesPerAudioPacket = calcBytesPerAudioPacket(sampleRate, stereo, requestedBufferMs);
     }
     Log.d(TAG, "useMinBuffer:" + useMinBuffer);
 
     // The agreement here is that audioTrack will be shutdown by the helper
-    audioTrack = buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer,
-        usePerformanceMode);
+    audioTrack = buildAudioTrack(sampleRate, channelMask, audioTrackMinBuffer, usePerformanceMode);
     Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
-    audioThread = new BufferToAudioTrackThread(this,
-        "audio:" + serverAddr + ":" + serverPort);
-    networkThread = new NetworkReadThread(this, serverAddr, serverPort, retry,
-        "net:" + serverAddr + ":" + serverPort);
+    audioThread = new BufferToAudioTrackThread(this, "audio:" + serverAddr + ":" + serverPort);
+    networkThread =
+        new NetworkReadThread(
+            this, serverAddr, serverPort, retry, "net:" + serverAddr + ":" + serverPort);
 
     audioThread.start();
     networkThread.start();
   }
 
-  static AudioTrack buildAudioTrack(int sampleRate, int channelMask,
-      int audioTrackMinBuffer, boolean usePerformanceMode) {
+  static AudioTrack buildAudioTrack(
+      int sampleRate, int channelMask, int audioTrackMinBuffer, boolean usePerformanceMode) {
     AudioTrack.Builder audioTrackBuilder =
-        new AudioTrack.Builder().setAudioAttributes(
-                new AudioAttributes.Builder().setUsage(
-                        AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build())
-            .setAudioFormat(new AudioFormat.Builder().setEncoding(
-                    AudioFormat.ENCODING_PCM_16BIT).setSampleRate(sampleRate)
-                .setChannelMask(channelMask).build())
+        new AudioTrack.Builder()
+            .setAudioAttributes(
+                new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build())
+            .setAudioFormat(
+                new AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(sampleRate)
+                    .setChannelMask(channelMask)
+                    .build())
             .setBufferSizeInBytes(audioTrackMinBuffer)
             .setTransferMode(AudioTrack.MODE_STREAM);
     if (usePerformanceMode) {
-      audioTrackBuilder.setPerformanceMode(
-          AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
+      audioTrackBuilder.setPerformanceMode(AudioTrack.PERFORMANCE_MODE_LOW_LATENCY);
     }
     return audioTrackBuilder.build();
   }
 
-  static int calcBytesPerAudioPacket(int sampleRate, boolean stereo,
-      int requestedBufferMs) {
+  static int calcBytesPerAudioPacket(int sampleRate, boolean stereo, int requestedBufferMs) {
 
     // Assume 16 bits per sample
     int bytesPerSecond = sampleRate * 2;
@@ -122,8 +127,7 @@ public class WorkerThreadPair {
     return result;
   }
 
-  static int calcMinBytesPerAudioPacket(boolean stereo,
-      int audioTrackMinBuffer) {
+  static int calcMinBytesPerAudioPacket(boolean stereo, int audioTrackMinBuffer) {
     int bytesPerAudioPacket;
 
     if (stereo) {
@@ -132,24 +136,21 @@ public class WorkerThreadPair {
       bytesPerAudioPacket = (audioTrackMinBuffer + 1) & ~0x1;
     }
 
-    Log.d(TAG, "calcMinBytesPerAudioPacket:audioTrackMinBuffer:" +
-        audioTrackMinBuffer);
+    Log.d(TAG, "calcMinBytesPerAudioPacket:audioTrackMinBuffer:" + audioTrackMinBuffer);
     Log.d(TAG, "calcMinBytesPerAudioPacket:" + bytesPerAudioPacket);
 
     return bytesPerAudioPacket;
   }
 
-  static public final int NUM_PACKETS = 3;
+  public static final int NUM_PACKETS = 3;
 
   // The amount of data to read from the network before sending to AudioTrack
   final int bytesPerAudioPacket;
 
-  final ArrayBlockingQueue<byte[]> dataQueue =
-      new ArrayBlockingQueue<>(NUM_PACKETS);
+  final ArrayBlockingQueue<byte[]> dataQueue = new ArrayBlockingQueue<>(NUM_PACKETS);
 
   public void stopAndInterrupt() {
-    for (ThreadStoppable it : new ThreadStoppable[]{audioThread,
-        networkThread}) {
+    for (ThreadStoppable it : new ThreadStoppable[] {audioThread, networkThread}) {
 
       try {
         it.customStop();
@@ -169,11 +170,13 @@ public class WorkerThreadPair {
   public void brokenShutdown() {
     // Broke out of loop unexpectedly. Shutdown.
     Handler h = new Handler(musicService.getMainLooper());
-    Runnable r = () -> {
-      Toast.makeText(musicService.getApplicationContext(), "Unable to stream",
-          Toast.LENGTH_SHORT).show();
-      musicService.processStopRequest();
-    };
+    Runnable r =
+        () -> {
+          Toast.makeText(
+                  musicService.getApplicationContext(), "Unable to stream", Toast.LENGTH_SHORT)
+              .show();
+          musicService.processStopRequest();
+        };
     h.post(r);
   }
 }
