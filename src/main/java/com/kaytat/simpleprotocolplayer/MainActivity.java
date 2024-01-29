@@ -536,7 +536,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
                     new MediaMetadata.Builder()
                         .setTitle(
                             "Streaming from " + bundle.getString(MusicService.DATA_IP_ADDRESS))
-                        .setDescription("SPP")
+                        .setArtist("Simple Protocol Player")
                         .setExtras(bundle)
                         .build())
                 .build();
