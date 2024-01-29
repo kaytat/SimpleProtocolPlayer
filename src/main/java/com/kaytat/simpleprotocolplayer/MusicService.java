@@ -80,7 +80,6 @@ public class MusicService extends Service implements MusicFocusable {
   State mState = State.Stopped;
 
   // do we have audio focus?
-  // do we have audio focus?
   enum AudioFocus {
     NoFocusNoDuck, // we don't have audio focus, and can't duck
     NoFocusCanDuck, // we don't have focus, but can play at a low
