@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
+import com.google.common.base.Strings;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -171,10 +172,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     String jsonString = prefs.getString(keyJson, null);
     ArrayList<String> arrayList = new ArrayList<>();
 
-    if (jsonString == null || jsonString.length() == 0) {
+    if (Strings.isNullOrEmpty(jsonString)) {
       // Try to fill with the original key used
       String single = prefs.getString(keySingle, null);
-      if (single != null && single.length() != 0) {
+      if (!Strings.isNullOrEmpty(jsonString)) {
         arrayList.add(single);
       }
     } else {
@@ -186,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         JSONArray jsonArray = jsonObject.getJSONArray("list");
         for (int i = 0; i < jsonArray.length(); i++) {
           String s = (String) jsonArray.get(i);
-          if (s != null && s.length() != 0) {
+          if (!Strings.isNullOrEmpty(s)) {
             arrayList.add(s);
           }
         }
@@ -297,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1, ipAddrList);
     ipAddrText.setAdapter(ipAddrAdapter);
     ipAddrText.setThreshold(1);
-    if (ipAddrList.size() != 0) {
+    if (!ipAddrList.isEmpty()) {
       ipAddrText.setText(ipAddrList.get(0));
     }
 
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1, audioPortList);
     audioPortText.setAdapter(audioPortAdapter);
     audioPortText.setThreshold(1);
-    if (audioPortList.size() != 0) {
+    if (!audioPortList.isEmpty()) {
       audioPortText.setText(audioPortList.get(0));
     }
 
@@ -495,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   private boolean isEmpty(EditText etText) {
-    return etText.getText().toString().trim().length() == 0;
+    return Strings.isNullOrEmpty(etText.getText().toString().trim());
   }
 
   private NetworkConnection getNetworkConnection() {
