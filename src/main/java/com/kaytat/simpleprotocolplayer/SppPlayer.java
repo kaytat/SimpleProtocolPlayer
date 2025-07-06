@@ -131,11 +131,11 @@ public class SppPlayer extends SimpleBasePlayer implements WorkerThreadPair.Stop
       Log.i(TAG, "startStream:not ready");
       return;
     }
-    if (state.playlist.get(0).mediaItem.mediaMetadata.extras == null) {
+    if (state.getPlaylist().get(0).mediaItem.mediaMetadata.extras == null) {
       Log.e(TAG, "startStream:no media selected");
       return;
     }
-    Bundle mediaItemExtra = state.playlist.get(0).mediaItem.mediaMetadata.extras;
+    Bundle mediaItemExtra = state.getPlaylist().get(0).mediaItem.mediaMetadata.extras;
 
     workers =
         new WorkerThreadPair(
