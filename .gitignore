@@ -39,3 +39,4 @@ captures/
 release/output.json
 debug/output-metadata.json
 release/output-metadata.json
+*.dm
