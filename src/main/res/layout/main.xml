@@ -48,7 +48,6 @@
 
       <AutoCompleteTextView
         android:id="@+id/editTextIpAddr"
-        android:textColor="#000000"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center"
@@ -82,7 +81,6 @@
 
       <AutoCompleteTextView
         android:id="@+id/editTextAudioPort"
-        android:textColor="#000000"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/center2"
@@ -314,6 +312,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:gravity="center"
+      android:fitsSystemWindows="true"
       android:orientation="horizontal">
 
       <com.google.android.material.button.MaterialButton
