@@ -27,6 +27,14 @@ are generally used.
 This project is based on an old version of this Android
 example: https://github.com/googlesamples/android-MediaBrowserService
 
+### Changes for 0.5.9.22 (version 22)
+
+Revert all changes after 0.5.9.0 (version 15). Then update minSdk to 26 and target and compile SDK
+to 36. Since this forces edge-to-edge support on the latest Android versions, hack the app a bit so
+that it doesn't look terrible.
+
+Also create a release branch dedicated for just Play Store updates.
+
 ### Changes for 0.5.7.0 (version 13)
 
 * Allow
