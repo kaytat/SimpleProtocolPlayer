@@ -28,7 +28,11 @@ import java.net.Socket;
 class NetworkReadThread extends ThreadStoppable {
   final String TAG;
 
-  static final int[][] RETRY_PARAMS = new int[][]{{5, 12}, {20, 6}, {60, 2}};
+  static final int[][] RETRY_PARAMS = new int[][]{
+      {5, 12},
+      {20, 6},
+      {60, 2}
+  };
 
   final WorkerThreadPair syncObject;
   final String ipAddr;
@@ -41,8 +45,12 @@ class NetworkReadThread extends ThreadStoppable {
   // socket timeout at 5 seconds
   static final int SOCKET_TIMEOUT = 5 * 1000;
 
-  public NetworkReadThread(WorkerThreadPair syncObject, String ipAddr, int port,
-      boolean attemptConnectionRetry, String debugTag) {
+  public NetworkReadThread(
+      WorkerThreadPair syncObject,
+      String ipAddr,
+      int port,
+      boolean attemptConnectionRetry,
+      String debugTag) {
     this.TAG = debugTag;
     this.setName(debugTag);
     this.syncObject = syncObject;
@@ -97,12 +105,12 @@ class NetworkReadThread extends ThreadStoppable {
         }
       }
 
-      Log.d(TAG,
-          "retryCount:" + retryCount + " retryParamIndex:" + retryParamIndex);
+      Log.d(TAG, "retryCount:" + retryCount + " retryParamIndex:" +
+          retryParamIndex);
 
       try {
         //noinspection BusyWait
-        Thread.sleep((long) RETRY_PARAMS[retryParamIndex][0] * 1000);
+        Thread.sleep((long)RETRY_PARAMS[retryParamIndex][0] * 1000);
       } catch (Exception e) {
         // Ignore.
       }
@@ -134,8 +142,8 @@ class NetworkReadThread extends ThreadStoppable {
         is.readFully(dataBuffer[bufferIndex]);
         connectionMade = true;
 
-        boolean dataPassed =
-            syncObject.dataQueue.offer(dataBuffer[bufferIndex]);
+        boolean dataPassed = syncObject.dataQueue
+            .offer(dataBuffer[bufferIndex]);
 
         if (!dataPassed) {
           // if current buffer not used to queue,

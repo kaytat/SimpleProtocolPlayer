@@ -43,32 +43,6 @@ example: https://github.com/googlesamples/android-MediaBrowserService
 The following web page describes how to configure PulseAudio for use with this
 player.  http://kaytat.com/blog/?page_id=301
 
-#### Streaming with Pipewire
-
-* On demand with enabled pipewire-pulse using `pactl` from pulseaudio-utils:
-  `pactl load-module module-simple-protocol-tcp rate=44100 format=s16le channels=2 record=true port=4711`
-
-* Permanently through config file `/etc/pipewire/pipewire.conf.d/simple-protocol.conf`:
-
-```
-context.modules = [
-{   name = libpipewire-module-protocol-simple
-    args = {
-        capture = true
-        audio.rate = 44100
-        audio.format = S16LE
-        audio.channels = 2
-        audio.position = [ FL FR ]
-        server.address = [
-            "tcp:4711"
-        ]
-    }
-}
-]
-```
-
-(https://docs.pipewire.org/page_module_protocol_simple.html for reference)
-
 #### Streaming from Windows
 
 Download the server from the github link above and run it locally. The server has some options also

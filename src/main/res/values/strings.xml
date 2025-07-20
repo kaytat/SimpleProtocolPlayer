@@ -45,6 +45,5 @@
   <string name="retry">Enable network retries</string>
   <string name="usePerformanceMode">Performance mode</string>
   <string name="useMinBuffer">Min AudioTrack buffer</string>
-  <string name="useMedia3">Media3</string>
   <string name="error">Error</string>
 </resources>

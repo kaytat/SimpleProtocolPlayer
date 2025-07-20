@@ -22,14 +22,14 @@
 package com.kaytat.simpleprotocolplayer;
 
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.net.Uri;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -47,28 +47,20 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Spinner;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.MediaMetadata;
-import androidx.media3.session.MediaController;
-import androidx.media3.session.SessionToken;
-import com.google.common.base.Strings;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
- * Main activity: shows media player buttons. This activity shows the media player buttons and lets
- * the user click them. No media handling is done here -- everything is done by passing Intents to
- * our {@link MusicService}.
+ * Main activity: shows media player buttons. This activity shows the media
+ * player buttons and lets the user click them. No media handling is done
+ * here -- everything is done by passing Intents to our {@link MusicService}.
  */
 public class MainActivity extends AppCompatActivity implements OnClickListener {
   private static final String TAG = "MainActivity";
@@ -98,8 +90,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   /**
-   * Called when the activity is first created. Here, we simply set the event listeners and start
-   * the background service ({@link MusicService}) that will handle the actual media playback.
+   * Called when the activity is first created. Here, we simply set the
+   * event listeners and start the background service ({@link MusicService})
+   * that will handle the actual media playback.
    */
   @SuppressLint("ClickableViewAccessibility")
   @Override
@@ -117,44 +110,35 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     stopButton.setOnClickListener(this);
 
     // Allow full list to be shown on first focus
-    ipAddrText.setOnTouchListener(
-        (v, event) -> {
-          ipAddrText.showDropDown();
-          return false;
-        });
-    ipAddrText.setOnFocusChangeListener(
-        (v, hasFocus) -> {
-          if (hasFocus && ipAddrText.getAdapter() != null) {
-            ipAddrText.showDropDown();
-          }
-        });
-    audioPortText.setOnTouchListener(
-        (v, event) -> {
-          audioPortText.showDropDown();
-          return false;
-        });
-    audioPortText.setOnFocusChangeListener(
-        (v, hasFocus) -> {
+    ipAddrText.setOnTouchListener((v, event) -> {
+      ipAddrText.showDropDown();
+      return false;
+    });
+    ipAddrText.setOnFocusChangeListener((v, hasFocus) -> {
+      if (hasFocus && ipAddrText.getAdapter() != null) {
+        ipAddrText.showDropDown();
+      }
+
+    });
+    audioPortText.setOnTouchListener((v, event) -> {
+      audioPortText.showDropDown();
+      return false;
+    });
+    audioPortText
+        .setOnFocusChangeListener((v, hasFocus) -> {
           if (hasFocus && ipAddrText.getAdapter() != null) {
             audioPortText.showDropDown();
           }
+
         });
-
-    initBackgroundMusicService();
-  }
-
-  @Override
-  public void onStop() {
-    super.onStop();
-    MediaController.releaseFuture(controllerFuture);
   }
 
   /**
-   * The two different approaches here is an attempt to support both an old preferences and new
-   * preferences. The newer version saved to JSON while the old version just saved one string.
+   * The two different approaches here is an attempt to support both an old
+   * preferences and new preferences.  The newer version saved to JSON while
+   * the old version just saved one string.
    */
   static final String IP_PREF = "IP_PREF";
-
   static final String PORT_PREF = "PORT_PREF";
 
   static final String IP_JSON_PREF = "IP_JSON_PREF";
@@ -167,15 +151,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   static final String USE_PERFORMANCE_MODE_PREF = "USE_PERFORMANCE_MODE";
   static final String USE_MIN_BUFFER_PREF = "USE_MIN_BUFFER";
 
-  ArrayList<String> getListFromPrefs(SharedPreferences prefs, String keyJson, String keySingle) {
+  ArrayList<String> getListFromPrefs(SharedPreferences prefs, String keyJson,
+      String keySingle) {
     // Retrieve the values from the shared preferences
     String jsonString = prefs.getString(keyJson, null);
     ArrayList<String> arrayList = new ArrayList<>();
 
-    if (Strings.isNullOrEmpty(jsonString)) {
+    if (jsonString == null || jsonString.length() == 0) {
       // Try to fill with the original key used
       String single = prefs.getString(keySingle, null);
-      if (!Strings.isNullOrEmpty(jsonString)) {
+      if (single != null && single.length() != 0) {
         arrayList.add(single);
       }
     } else {
@@ -187,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
         JSONArray jsonArray = jsonObject.getJSONArray("list");
         for (int i = 0; i < jsonArray.length(); i++) {
           String s = (String) jsonArray.get(i);
-          if (!Strings.isNullOrEmpty(s)) {
+          if (s != null && s.length() != 0) {
             arrayList.add(s);
           }
         }
@@ -199,8 +184,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     return arrayList;
   }
 
-  private ArrayList<String> getUpdatedArrayList(
-      SharedPreferences prefs, AutoCompleteTextView view, String keyJson, String keySingle) {
+  private ArrayList<String> getUpdatedArrayList(SharedPreferences prefs,
+      AutoCompleteTextView view, String keyJson, String keySingle) {
     // Retrieve the values from the shared preferences
     ArrayList<String> arrayList = getListFromPrefs(prefs, keyJson, keySingle);
 
@@ -231,8 +216,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     SharedPreferences myPrefs = getSharedPreferences("myPrefs", MODE_PRIVATE);
     SharedPreferences.Editor prefsEditor = myPrefs.edit();
 
-    ipAddrList = getUpdatedArrayList(myPrefs, ipAddrText, IP_JSON_PREF, IP_PREF);
-    audioPortList = getUpdatedArrayList(myPrefs, audioPortText, PORT_JSON_PREF, PORT_PREF);
+    ipAddrList =
+        getUpdatedArrayList(myPrefs, ipAddrText, IP_JSON_PREF, IP_PREF);
+    audioPortList =
+        getUpdatedArrayList(myPrefs, audioPortText, PORT_JSON_PREF, PORT_PREF);
 
     // Write out JSON object
     prefsEditor.putString(IP_JSON_PREF, getJson(ipAddrList).toString());
@@ -260,12 +247,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     public final List<T> items;
 
     @Override
-    @NonNull
     public Filter getFilter() {
       return filter;
     }
 
-    public NoFilterArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
+    public NoFilterArrayAdapter(Context context, int textViewResourceId,
+        List<T> objects) {
       super(context, textViewResourceId, objects);
       Log.v(TAG, "Adapter created " + filter);
       items = objects;
@@ -282,7 +269,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       }
 
       @Override
-      protected void publishResults(CharSequence arg0, Filter.FilterResults arg1) {
+      protected void publishResults(CharSequence arg0,
+          Filter.FilterResults arg1) {
         notifyDataSetChanged();
       }
     }
@@ -295,23 +283,26 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     ipAddrList = getListFromPrefs(myPrefs, IP_JSON_PREF, IP_PREF);
     ipAddrAdapter =
-        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1, ipAddrList);
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            ipAddrList);
     ipAddrText.setAdapter(ipAddrAdapter);
     ipAddrText.setThreshold(1);
-    if (!ipAddrList.isEmpty()) {
+    if (ipAddrList.size() != 0) {
       ipAddrText.setText(ipAddrList.get(0));
     }
 
     if (!isEmpty(ipAddrText)) {
-      getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+      getWindow().setSoftInputMode(
+          WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     audioPortList = getListFromPrefs(myPrefs, PORT_JSON_PREF, PORT_PREF);
     audioPortAdapter =
-        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1, audioPortList);
+        new NoFilterArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+            audioPortList);
     audioPortText.setAdapter(audioPortAdapter);
     audioPortText.setThreshold(1);
-    if (!audioPortList.isEmpty()) {
+    if (audioPortList.size() != 0) {
       audioPortText.setText(audioPortList.get(0));
     }
 
@@ -348,8 +339,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
     ((CheckBox) findViewById(R.id.checkBoxRetry)).setChecked(retry);
     Log.d(TAG, "retry:" + retry);
 
-    usePerformanceMode =
-        myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
+    usePerformanceMode = myPrefs.getBoolean(USE_PERFORMANCE_MODE_PREF, MusicService.DEFAULT_USE_PERFORMANCE_MODE);
     ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).setChecked(usePerformanceMode);
     Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
 
@@ -377,54 +367,55 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
   }
 
   public void onClick(View target) {
-    boolean useMedia3 = ((CheckBox) findViewById(R.id.checkBoxUseMedia3)).isChecked();
-
     // Send the correct intent to the MusicService, according to the
     // button that was clicked
     if (target == playButton) {
       switch (getNetworkConnection()) {
-        case NOT_CONNECTED:
-          Toast.makeText(getApplicationContext(), "No network connectivity.", Toast.LENGTH_SHORT)
-              .show();
-          return;
-        case NON_WIFI_CONNECTED:
-          Toast.makeText(
-                  getApplicationContext(), "WARNING: wifi not connected.", Toast.LENGTH_SHORT)
-              .show();
-          break;
-        default:
-          break;
+      case NOT_CONNECTED:
+        Toast.makeText(getApplicationContext(), "No network connectivity.",
+            Toast.LENGTH_SHORT).show();
+        return;
+      case NON_WIFI_CONNECTED:
+        Toast.makeText(getApplicationContext(), "WARNING: wifi not connected.",
+            Toast.LENGTH_SHORT).show();
+        break;
+      default:
+        break;
       }
 
       hideKb();
 
       // Get the IP address and port and put it in the intent
-      Bundle bundle = new Bundle();
+      Intent i = new Intent(MusicService.ACTION_PLAY);
+      i.setPackage(getPackageName());
       String ipAddr = ipAddrText.getText().toString();
       String portStr = audioPortText.getText().toString();
 
       // Check address string against domain, IPv4, and IPv6
       DomainValidator domainValidator = DomainValidator.getInstance();
-      InetAddressValidator inetAddressValidator = InetAddressValidator.getInstance();
-      if (!domainValidator.isValid(ipAddr)
-          && !inetAddressValidator.isValidInet4Address(ipAddr)
-          && !inetAddressValidator.isValidInet6Address(ipAddr)) {
-        Toast.makeText(getApplicationContext(), "Invalid address", Toast.LENGTH_SHORT).show();
+      InetAddressValidator inetAddressValidator =
+          InetAddressValidator.getInstance();
+      if (!domainValidator.isValid(ipAddr) &&
+          !inetAddressValidator.isValidInet4Address(ipAddr) &&
+          !inetAddressValidator.isValidInet6Address(ipAddr)) {
+        Toast.makeText(getApplicationContext(), "Invalid address",
+            Toast.LENGTH_SHORT).show();
         return;
       }
       Log.d(TAG, "ip:" + ipAddr);
-      bundle.putString(MusicService.DATA_IP_ADDRESS, ipAddr);
+      i.putExtra(MusicService.DATA_IP_ADDRESS, ipAddr);
 
       int audioPort;
       try {
         audioPort = Integer.parseInt(portStr);
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid port:" + nfe);
-        Toast.makeText(getApplicationContext(), "Invalid port", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Invalid port",
+            Toast.LENGTH_SHORT).show();
         return;
       }
       Log.d(TAG, "port:" + audioPort);
-      bundle.putInt(MusicService.DATA_AUDIO_PORT, audioPort);
+      i.putExtra(MusicService.DATA_AUDIO_PORT, audioPort);
 
       // Extract sample rate
       Spinner sampleRateSpinner = findViewById(R.id.spinnerSampleRate);
@@ -433,19 +424,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       try {
         sampleRate = Integer.parseInt(rateSplit[0]);
         Log.i(TAG, "rate:" + sampleRate);
-        bundle.putInt(MusicService.DATA_SAMPLE_RATE, sampleRate);
+        i.putExtra(MusicService.DATA_SAMPLE_RATE, sampleRate);
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid rate:" + nfe);
-        Toast.makeText(getApplicationContext(), "Invalid rate", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Invalid rate",
+            Toast.LENGTH_SHORT).show();
         return;
       }
 
       // Extract stereo/mono setting
       Spinner stereoSpinner = findViewById(R.id.stereo);
-      String stereoSettingString = String.valueOf(stereoSpinner.getSelectedItem());
+      String stereoSettingString =
+          String.valueOf(stereoSpinner.getSelectedItem());
       String stereoKey = getResources().getString(R.string.stereoKey);
       stereo = stereoSettingString.contains(stereoKey);
-      bundle.putBoolean(MusicService.DATA_STEREO, stereo);
+      i.putExtra(MusicService.DATA_STEREO, stereo);
       Log.i(TAG, "stereo:" + stereo);
 
       // Get the latest buffer entry
@@ -454,34 +447,38 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       try {
         bufferMs = Integer.parseInt(bufferMsString);
         Log.d(TAG, "buffer ms:" + bufferMs);
-        bundle.putInt(MusicService.DATA_BUFFER_MS, bufferMs);
+        i.putExtra(MusicService.DATA_BUFFER_MS, bufferMs);
       } catch (NumberFormatException nfe) {
         Log.e(TAG, "Invalid buffer ms:" + nfe);
-        Toast.makeText(getApplicationContext(), "Invalid buffer ms", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Invalid buffer ms",
+            Toast.LENGTH_SHORT).show();
         return;
       }
 
       // Get the retry checkbox
       retry = ((CheckBox) findViewById(R.id.checkBoxRetry)).isChecked();
       Log.d(TAG, "retry:" + retry);
-      bundle.putBoolean(MusicService.DATA_RETRY, retry);
+      i.putExtra(MusicService.DATA_RETRY, retry);
 
       // Get the usePerformanceMode checkbox
       usePerformanceMode = ((CheckBox) findViewById(R.id.checkBoxUsePerformanceMode)).isChecked();
       Log.d(TAG, "usePerformanceMode:" + usePerformanceMode);
-      bundle.putBoolean(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
+      i.putExtra(MusicService.DATA_USE_PERFORMANCE_MODE, usePerformanceMode);
 
       // Get the useMinBuffer checkbox
       useMinBuffer = ((CheckBox) findViewById(R.id.checkBoxUseMinBuffer)).isChecked();
       Log.d(TAG, "useMinBuffer:" + useMinBuffer);
-      bundle.putBoolean(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
+      i.putExtra(MusicService.DATA_USE_MIN_BUFFER, useMinBuffer);
 
       // Save current settings
       savePrefs();
-      startMusicService(useMedia3, bundle);
+      startService(i);
     } else if (target == stopButton) {
       hideKb();
-      stopMusicService(useMedia3);
+
+      Intent i = new Intent(MusicService.ACTION_STOP);
+      i.setPackage(getPackageName());
+      startService(i);
     }
   }
 
@@ -491,12 +488,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
 
     View v = getCurrentFocus();
     if (v != null) {
-      inputManager.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+      inputManager.hideSoftInputFromWindow(v.getWindowToken(),
+          InputMethodManager.HIDE_NOT_ALWAYS);
     }
   }
 
   private boolean isEmpty(EditText etText) {
-    return Strings.isNullOrEmpty(etText.getText().toString().trim());
+    return etText.getText().toString().trim().length() == 0;
   }
 
   private NetworkConnection getNetworkConnection() {
@@ -506,78 +504,34 @@ public class MainActivity extends AppCompatActivity implements OnClickListener {
       return NetworkConnection.NOT_CONNECTED;
     }
 
-    NetworkCapabilities capabilities =
-        connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
-    if (capabilities == null) {
-      return NetworkConnection.NOT_CONNECTED;
-    }
-    if (!capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-      return NetworkConnection.NOT_CONNECTED;
-    }
-    if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-      return NetworkConnection.WIFI_CONNECTED;
-    } else {
-      return NetworkConnection.NON_WIFI_CONNECTED;
-    }
-  }
-
-  private void startMusicService(boolean useMedia3, Bundle bundle) {
-    if (useMedia3) {
-      try {
-        MediaItem mediaItem =
-            new MediaItem.Builder()
-                .setUri(
-                    new Uri.Builder()
-                        .encodedAuthority(
-                            bundle.getString(MusicService.DATA_IP_ADDRESS)
-                                + ":"
-                                + bundle.getInt(MusicService.DATA_AUDIO_PORT))
-                        .build())
-                .setMediaMetadata(
-                    new MediaMetadata.Builder()
-                        .setTitle(
-                            "Streaming from " + bundle.getString(MusicService.DATA_IP_ADDRESS))
-                        .setArtist("Simple Protocol Player")
-                        .setExtras(bundle)
-                        .build())
-                .build();
-        controllerFuture.get().setMediaItem(mediaItem);
-        controllerFuture.get().prepare();
-        controllerFuture.get().play();
-      } catch (Exception e) {
-        Log.e(TAG, "startMusicService:media3 exception", e);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      NetworkCapabilities capabilities = connectivityManager
+          .getNetworkCapabilities(connectivityManager.getActiveNetwork());
+      if (capabilities == null) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (!capabilities
+          .hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+        return NetworkConnection.WIFI_CONNECTED;
+      } else {
+        return NetworkConnection.NON_WIFI_CONNECTED;
       }
     } else {
-      Intent i = new Intent(MusicService.ACTION_PLAY);
-      i.setPackage(getPackageName()).putExtras(bundle);
-      startService(i);
-    }
-  }
-
-  private void stopMusicService(boolean useMedia3) {
-    if (useMedia3) {
-      try {
-        controllerFuture.get().stop();
-      } catch (Exception e) {
-        Log.e(TAG, "stopMusicService:media3 exception", e);
+      NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+      if (networkInfo == null) {
+        return NetworkConnection.NOT_CONNECTED;
       }
-    } else {
-      Intent i = new Intent(MusicService.ACTION_STOP);
-      i.setPackage(getPackageName());
-      startService(i);
+      if (!networkInfo.isConnected()) {
+        return NetworkConnection.NOT_CONNECTED;
+      }
+      if (networkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+        return NetworkConnection.WIFI_CONNECTED;
+      } else {
+        return NetworkConnection.NON_WIFI_CONNECTED;
+      }
     }
-  }
-
-  ListenableFuture<MediaController> controllerFuture;
-
-  private void initBackgroundMusicService() {
-    SessionToken sessionToken =
-        new SessionToken(this, new ComponentName(this, BackgroundMusicService.class));
-    controllerFuture = new MediaController.Builder(this, sessionToken).buildAsync();
-    controllerFuture.addListener(
-        () -> {
-          // MediaController is available here with controllerFuture.get()
-        },
-        MoreExecutors.directExecutor());
   }
 }

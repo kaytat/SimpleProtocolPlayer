@@ -35,22 +35,17 @@ public class MusicIntentReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    if (intent == null || intent.getAction() == null) {
-      Log.e(TAG, "Intent action is null");
-      return;
-    }
     if (intent.getAction()
         .equals(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)) {
       Log.i(TAG, "onReceive - headphones disconnected.  Stopping");
       // send an intent to our MusicService to telling it to pause the
       // audio
       context.startService(new Intent(MusicService.ACTION_STOP));
-    } else if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON) &&
-        intent.getExtras() != null &&
-        intent.getExtras().get(Intent.EXTRA_KEY_EVENT) != null) {
+
+    } else if (intent.getAction().equals(Intent.ACTION_MEDIA_BUTTON)) {
       KeyEvent keyEvent =
           (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
-      if (keyEvent == null || keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
+      if (keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
         return;
       }
 

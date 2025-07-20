@@ -17,15 +17,15 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
-  android:versionCode="16"
-  android:versionName="0.16.0">
+  android:versionCode="15"
+  android:versionName="0.5.9.0">
 
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
   <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
   <uses-permission android:name="android.permission.WAKE_LOCK" />
 
   <application
@@ -68,16 +68,6 @@
         <action android:name="com.kaytat.simpleprotocolplayer.action.STOP" />
       </intent-filter>
     </service>
-
-    <service
-      android:name=".BackgroundMusicService"
-      android:foregroundServiceType="mediaPlayback"
-      android:exported="true">
-      <intent-filter>
-        <action android:name="androidx.media3.session.MediaSessionService" />
-      </intent-filter>
-    </service>
-
   </application>
 
 </manifest>
