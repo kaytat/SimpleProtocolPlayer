@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <style name="theme_light" parent="Theme.MaterialComponents.Light.DarkActionBar" />
+  <style name="theme_daynight" parent="Theme.MaterialComponents.DayNight" />
 
-  <style name="theme_light_nobar" parent="Theme.MaterialComponents.Light.NoActionBar" />
+  <style name="theme_daynight_nobar" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
 </resources>
