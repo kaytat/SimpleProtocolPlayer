@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath 'com.android.tools.build:gradle:8.11.1'
     }
 }
 allprojects {
@@ -19,11 +19,11 @@ allprojects {
 }
 apply plugin: 'com.android.application'
 android {
-    compileSdk 34
+    compileSdk 36
     defaultConfig {
         applicationId "com.kaytat.simpleprotocolplayer"
-        minSdkVersion 16
-        targetSdkVersion 34
+        minSdkVersion 26
+        targetSdkVersion 36
     }
     buildTypes {
         release {
@@ -37,10 +37,10 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.core:core:1.12.0'
-    implementation 'com.google.android.material:material:1.11.0'
-    implementation 'commons-validator:commons-validator:1.7'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.core:core:1.16.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'commons-validator:commons-validator:1.10.0'
 }
 
 configurations {
