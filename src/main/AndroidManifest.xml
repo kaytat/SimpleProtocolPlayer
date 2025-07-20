@@ -30,12 +30,13 @@
 
   <application
     android:allowBackup="true"
+    android:name=".SimpleProtocolPlayerApplication"
     android:icon="@drawable/ic_launcher"
     android:label="@string/app_title">
     <activity
       android:name="com.kaytat.simpleprotocolplayer.MainActivity"
       android:exported="true"
-      android:theme="@style/theme_light">
+      android:theme="@style/theme_daynight">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -45,7 +46,7 @@
     <activity
       android:name="com.kaytat.simpleprotocolplayer.NoticeActivity"
       android:label="@string/notice_title"
-      android:theme="@style/theme_light_nobar" />
+      android:theme="@style/theme_daynight_nobar" />
 
     <receiver
       android:name="com.kaytat.simpleprotocolplayer.MusicIntentReceiver"
